@@ -11,8 +11,8 @@ public class Main {
 
         DataLoad.loadAllData();
 
-        AutoEmail.startDailyScheduler();
-        
+        //AutoEmail.startDailyScheduler();
+
         LoginUI.start();
     }
 }

@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 public class AutoEmail {
     private static final String SENDER_EMAIL = "25006805@siswa.um.edu.my"; 
-    private static final String SENDER_PASSWORD = "rwrhhlerjuskusrg"; //Gmail app password (not login password)
+    private static final String SENDER_PASSWORD = "****************"; //Gmail app password (not login password)
     private static final String SMTP_HOST = "smtp.gmail.com";
     private static final String SMTP_PORT = "587";
     private static final int TARGET_HOUR = 14; 

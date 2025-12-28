@@ -7,6 +7,9 @@ import javax.swing.SwingUtilities;
 
 public class MainGUI {
     public static void main(String[] args) {
+        //Send auto email to headquarters at 10pm daily
+        AutoEmail.startDailyScheduler();
+        
         // 1. Load Data (Same as Console!)
         System.out.println("Starting GUI Application...");
         DataLoad.loadAllData();

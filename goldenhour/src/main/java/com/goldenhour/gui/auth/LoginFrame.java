@@ -15,8 +15,9 @@ public class LoginFrame extends JFrame {
     private JPasswordField passwordField;
 
     // Update these paths to your actual images if needed
-    private final String LOGO_PATH = "C:\\Users\\60115\\OneDrive\\Desktop\\Y1S1\\GoldenHour-System\\goldenhour\\image\\app_icon_1.png";
-    private final String SIDE_IMAGE_PATH = "C:\\Users\\60115\\OneDrive\\Desktop\\Y1S1\\GoldenHour-System\\goldenhour\\image\\side_image.png";
+    
+    private final String LOGO_PATH = "goldenhour\\image\\app_icon_1.png";
+    private final String SIDE_IMAGE_PATH = "goldenhour\\image\\side_image.png";
 
     public LoginFrame() {
         setTitle("Golden Hour System - Login");

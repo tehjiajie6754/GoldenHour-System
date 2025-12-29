@@ -3,7 +3,7 @@ package com.goldenhour.gui.admin;
 import com.goldenhour.categories.Employee;
 import com.goldenhour.dataload.DataLoad;
 import com.goldenhour.gui.common.BackgroundPanel;
-import com.goldenhour.gui.common.ModernCard;
+import com.goldenhour.gui.common.Card;
 import com.goldenhour.storage.CSVHandler;
 import com.goldenhour.storage.DatabaseHandler;
 
@@ -21,7 +21,7 @@ public class RegisterEmployeePanel extends BackgroundPanel {
         setBorder(new EmptyBorder(30, 30, 30, 30));
 
         // --- MAIN CARD ---
-        ModernCard card = new ModernCard(Color.WHITE);
+        Card card = new Card(Color.WHITE);
         card.setPreferredSize(new Dimension(500, 550));
         card.setLayout(new BorderLayout());
         card.setBorder(new EmptyBorder(40, 50, 40, 50));

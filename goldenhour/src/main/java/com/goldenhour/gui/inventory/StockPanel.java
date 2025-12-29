@@ -3,7 +3,7 @@ package com.goldenhour.gui.inventory;
 import com.goldenhour.categories.Model;
 import com.goldenhour.categories.Outlet;
 import com.goldenhour.gui.common.BackgroundPanel;
-import com.goldenhour.gui.common.ModernCard;
+import com.goldenhour.gui.common.Card;
 import com.goldenhour.storage.DatabaseHandler;
 
 import javax.swing.*;
@@ -43,7 +43,7 @@ public class StockPanel extends BackgroundPanel {
         add(metricsPanel, BorderLayout.NORTH);
 
         // === 2. MAIN CONTENT (Filter + Table) ===
-        ModernCard mainCard = new ModernCard(Color.WHITE);
+        Card mainCard = new Card(Color.WHITE);
         mainCard.setLayout(new BorderLayout());
         mainCard.setBorder(new EmptyBorder(20, 20, 20, 20));
 
@@ -151,7 +151,7 @@ public class StockPanel extends BackgroundPanel {
     // --- HELPER UI METHODS ---
 
     private JPanel createMetricCard(String title, JLabel valLabel, String iconPath, Color accent) {
-        ModernCard card = new ModernCard(Color.WHITE);
+        Card card = new Card(Color.WHITE);
         card.setLayout(new BorderLayout());
         card.setBorder(new EmptyBorder(15, 20, 15, 20));
 

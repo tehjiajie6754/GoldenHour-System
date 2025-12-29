@@ -3,7 +3,7 @@ package com.goldenhour.gui.admin;
 import com.goldenhour.categories.*;
 import com.goldenhour.dataload.DataLoad;
 import com.goldenhour.gui.common.BackgroundPanel;
-import com.goldenhour.gui.common.ModernCard;
+import com.goldenhour.gui.common.Card;
 import com.goldenhour.storage.CSVHandler;
 import com.goldenhour.storage.DatabaseHandler;
 
@@ -14,7 +14,6 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 
 public class DatabaseViewerPanel extends BackgroundPanel {
 
@@ -97,7 +96,7 @@ public class DatabaseViewerPanel extends BackgroundPanel {
         add(topContainer, BorderLayout.NORTH);
 
         // === 2. TABLE AREA ===
-        ModernCard card = new ModernCard(Color.WHITE);
+        Card card = new Card(Color.WHITE);
         card.setLayout(new BorderLayout());
 
         tableModel = new DefaultTableModel() {

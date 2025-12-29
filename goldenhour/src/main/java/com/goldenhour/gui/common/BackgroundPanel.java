@@ -16,7 +16,8 @@ public class BackgroundPanel extends JPanel {
         
         try {
             // Load the background image path relative to the class path
-            ImageIcon icon = new ImageIcon("C:\\Users\\60115\\OneDrive\\Desktop\\Y1S1\\GoldenHour-System\\goldenhour\\image\\background.png");
+            String iconPath = "goldenhour\\image\\background.png";
+            ImageIcon icon = new ImageIcon(iconPath);
             bgImage = icon.getImage();
         } catch (Exception e) {
             // Fallback if image is missing: just set a nice flat color

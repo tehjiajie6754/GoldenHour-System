@@ -186,10 +186,8 @@ public class CSVHandler {
     }
 
     public static void writeOutlets(List<Outlet> outlets) {
-        // Adjust the path if your CSV is in a different folder
-        File file = new File(OUTLET_FILE); 
 
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(OUTLET_FILE))) {
             // Optional: Write header if your CSVs usually have them
             // bw.write("outlet_code,outlet_name");
             // bw.newLine();

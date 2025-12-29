@@ -1,10 +1,9 @@
 package com.goldenhour.gui.hr;
 
 import com.goldenhour.categories.Attendance;
-import com.goldenhour.categories.Outlet;
 import com.goldenhour.dataload.DataLoad;
 import com.goldenhour.gui.common.BackgroundPanel;
-import com.goldenhour.gui.common.ModernCard;
+import com.goldenhour.gui.common.Card;
 import com.goldenhour.service.loginregister.AuthService;
 import com.goldenhour.storage.CSVHandler;
 import com.goldenhour.storage.DatabaseHandler;
@@ -70,7 +69,7 @@ public class AttendancePanel extends BackgroundPanel { // Inherits background im
 
         // === 2. GLASS TABLE CARD ===
         // Use a semi-transparent white (Alpha = 200) for the card background
-        ModernCard tableCard = new ModernCard(new Color(255, 255, 255, 200));
+        Card tableCard = new Card(new Color(255, 255, 255, 200));
         tableCard.setLayout(new BorderLayout());
         
         // Table Data

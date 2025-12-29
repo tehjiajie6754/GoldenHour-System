@@ -2,6 +2,7 @@ package com.goldenhour.main;
 
 import com.goldenhour.dataload.DataLoad;
 import com.goldenhour.gui.auth.LoginFrame;
+import com.goldenhour.service.autoemail.AutoEmail;
 
 import javax.swing.SwingUtilities;
 

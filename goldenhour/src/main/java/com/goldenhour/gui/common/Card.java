@@ -3,11 +3,11 @@ package com.goldenhour.gui.common;
 import javax.swing.*;
 import java.awt.*;
 
-public class ModernCard extends JPanel {
+public class Card extends JPanel {
     private Color backgroundColor;
     private int cornerRadius = 20;
 
-    public ModernCard(Color bgColor) {
+    public Card(Color bgColor) {
         this.backgroundColor = bgColor;
         setOpaque(false); // Transparent so we can draw custom rounded shape
     }

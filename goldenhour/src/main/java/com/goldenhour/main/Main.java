@@ -3,6 +3,7 @@ package com.goldenhour.main;
 import com.goldenhour.ui.LoginUI;
 
 import com.goldenhour.dataload.DataLoad;
+import com.goldenhour.service.autoemail.AutoEmail;
 
 
 public class Main {
@@ -11,7 +12,7 @@ public class Main {
 
         DataLoad.loadAllData();
 
-        //AutoEmail.startDailyScheduler();
+        AutoEmail.startDailyScheduler();
 
         LoginUI.start();
     }

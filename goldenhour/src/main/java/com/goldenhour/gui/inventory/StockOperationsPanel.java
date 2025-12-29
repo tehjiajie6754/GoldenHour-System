@@ -4,7 +4,7 @@ import com.goldenhour.categories.Model;
 import com.goldenhour.categories.Outlet;
 import com.goldenhour.dataload.DataLoad;
 import com.goldenhour.gui.common.BackgroundPanel;
-import com.goldenhour.gui.common.ModernCard;
+import com.goldenhour.gui.common.Card;
 import com.goldenhour.storage.DatabaseHandler;
 import com.goldenhour.storage.ReceiptHandler; // Ensure this is imported
 import com.goldenhour.service.loginregister.AuthService; // Ensure this is imported
@@ -36,7 +36,7 @@ public class StockOperationsPanel extends BackgroundPanel {
     private enum CountStep { SELECTION, INPUT, REPORT }
     private enum CountType { MORNING, NIGHT }
     private CountStep currentCountStep = CountStep.SELECTION;
-    private CountType currentCountType = CountType.MORNING;
+    //private CountType currentCountType = CountType.MORNING;
 
     // --- UI COMPONENTS ---
     private JPanel tabsContainer;
@@ -163,7 +163,7 @@ public class StockOperationsPanel extends BackgroundPanel {
         moveCardsPanel.setOpaque(false);
         renderMovementCards();
 
-        moveFormPanel = new ModernCard(Color.WHITE);
+        moveFormPanel = new Card(Color.WHITE);
         moveFormPanel.setLayout(new BorderLayout(20, 20)); 
         moveFormPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
         renderMovementForm();
@@ -559,7 +559,7 @@ public class StockOperationsPanel extends BackgroundPanel {
                 card.setBorder(new CompoundBorder(new LineBorder(new Color(230, 230, 230), 1, true), new EmptyBorder(25, 30, 25, 30)));
             }
             public void mouseClicked(MouseEvent e) {
-                currentCountType = type;
+                //currentCountType = type;
                 currentCountStep = CountStep.INPUT;
                 countProgressBar.repaint();
                 loadCountInputData();
@@ -570,7 +570,7 @@ public class StockOperationsPanel extends BackgroundPanel {
     }
 
     private void initCountInputPanel() {
-        JPanel inputPanel = new ModernCard(Color.WHITE);
+        JPanel inputPanel = new Card(Color.WHITE);
         inputPanel.setLayout(new BorderLayout(0, 20));
         inputPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
 

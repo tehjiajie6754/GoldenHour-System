@@ -1,4 +1,4 @@
-package com.goldenhour.main;
+package com.goldenhour.service.autoemail;
 
 import java.util.Properties;
 import javax.mail.*;
@@ -15,19 +15,27 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
+import java.awt.Toolkit;
+import java.awt.Image;
+import java.awt.TrayIcon.MessageType;
+import java.awt.AWTException;
+
 public class AutoEmail {
-    private static final String SENDER_EMAIL = "25006805@siswa.um.edu.my"; 
-    private static final String SENDER_PASSWORD = "****************"; //Gmail app password (not login password)
+    private static final String SENDER_EMAIL = "25006739@siswa.um.edu.my"; 
+    //private static final String SENDER_EMAIL = "25006805@siswa.um.edu.my"; 
+    private static final String SENDER_PASSWORD = "xnyd pxyb xrfg rjsw"; //Gmail app password (not login password)
     private static final String SMTP_HOST = "smtp.gmail.com";
     private static final String SMTP_PORT = "587";
-    private static final int TARGET_HOUR = 14; 
-    private static final int TARGET_MIN = 29;
+    private static final int TARGET_HOUR = 22; 
+    private static final int TARGET_MIN = 15;
 
     public static void sendDailyReport() {
         // passing null uses "Today" and "All Outlets" automatically
         DailySalesSummary todayStats = SalesCalculator.getSummary(null, null);
 
-        String recipient = "25006805@siswa.um.edu.my";
+        String recipient = "25006739@siswa.um.edu.my";
         String date = TimeUtils.getDate();
         String filePath = "data/receipts/sales_" + date + ".txt";
         double totalSales = todayStats.getGrandTotal();
@@ -102,7 +110,7 @@ public class AutoEmail {
                     + "Attached is the daily sales receipt file.\n\n"
                     + "--- Sales Summary ---\n"
                     + "Date: " + date + "\n"
-                    + "Total Sales Amount: $" + String.format("%.2f", totalSales) + "\n\n"
+                    + "Total Sales Amount: RM" + String.format("%.2f", totalSales) + "\n\n"
                     + "Regards,\nStore System Automation";
             messageBodyPart.setText(emailContent);
             multipart.addBodyPart(messageBodyPart);
@@ -118,9 +126,47 @@ public class AutoEmail {
             message.setContent(multipart);
             Transport.send(message);
 
+            // --- ADD THIS TRAY NOTIFICATION ---
+            if (SystemTray.isSupported()) {
+                SystemTray tray = SystemTray.getSystemTray();
+                // You can replace "logo.png" with a path to your app icon, or use a default one
+                Image image = Toolkit.getDefaultToolkit().createImage("goldenhour\\image\\app_icon_1.png"); 
+                
+                TrayIcon trayIcon = new TrayIcon(image, "GoldenHour POS");
+                trayIcon.setImageAutoSize(true);
+                
+                try {
+                    tray.add(trayIcon);
+                    trayIcon.displayMessage("Daily Report", 
+                        "✅ Sales report successfully emailed to Headquarters.", 
+                        MessageType.INFO);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+
             System.out.println("Email sent successfully to " + toAddress);
 
         } catch (MessagingException e) {
+    // --- ERROR NOTIFICATION ---
+            if (SystemTray.isSupported()) {
+                SystemTray tray = SystemTray.getSystemTray();
+                // Ensure this image path is correct, or the tray icon might be blank
+                Image image = Toolkit.getDefaultToolkit().createImage("goldenhour\\image\\app_icon_1.png"); 
+                
+                TrayIcon trayIcon = new TrayIcon(image, "GoldenHour POS");
+                trayIcon.setImageAutoSize(true);
+                
+                try {
+                    tray.add(trayIcon);
+                    // Show Error Bubble
+                    trayIcon.displayMessage("Auto-Email Failed", 
+                        "❌ Could not send daily report.\nError: " + e.getMessage(), 
+                        MessageType.ERROR);
+                } catch (AWTException ex) {
+                    ex.printStackTrace();
+                }
+            }
             System.err.println("Failed to send email. Error: " + e.getMessage());
             e.printStackTrace();
         }

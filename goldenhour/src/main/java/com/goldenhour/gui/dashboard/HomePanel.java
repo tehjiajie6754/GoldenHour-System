@@ -2,9 +2,10 @@ package com.goldenhour.gui.dashboard;
 
 import com.goldenhour.categories.Sales;
 import com.goldenhour.dataload.DataLoad;
-import com.goldenhour.gui.common.ModernCard;
+import com.goldenhour.gui.common.Card;
 import com.goldenhour.service.loginregister.AuthService;
 import com.goldenhour.storage.DatabaseHandler;
+import com.goldenhour.gui.dashboard.TopProductPanel;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -12,10 +13,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
-import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -84,7 +82,7 @@ public class HomePanel extends JPanel {
 
         // ROW 3
         gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 1; gbc.gridheight = 1; gbc.weighty = 0.3;
-        mainGrid.add(createDonutChartCard("Expenses", "78% Budget", COL_PRIMARY), gbc);
+        mainGrid.add(new TopProductPanel(), gbc); // <--- ADD THIS LINE
 
         gbc.gridx = 1; gbc.gridy = 3; gbc.gridwidth = 3; 
         mainGrid.add(createTransactionListCard(), gbc);
@@ -95,7 +93,7 @@ public class HomePanel extends JPanel {
     // =========================================================================
 
     private JPanel createTotalIncomeCard() {
-        ModernCard card = new ModernCard(Color.WHITE);
+        Card card = new Card(Color.WHITE);
         card.setLayout(new BorderLayout());
         card.setBorder(new EmptyBorder(20, 20, 20, 20));
 
@@ -137,7 +135,7 @@ public class HomePanel extends JPanel {
     // (I will condense these for brevity, they are identical to the previous working version)
     
     private JPanel createWelcomeCard() {
-        ModernCard card = new ModernCard(Color.WHITE);
+        Card card = new Card(Color.WHITE);
         card.setLayout(new BorderLayout());
         JPanel textPanel = new JPanel(new GridLayout(3, 1, 0, 5));
         textPanel.setOpaque(false); textPanel.setBorder(new EmptyBorder(25, 25, 25, 0));
@@ -152,7 +150,7 @@ public class HomePanel extends JPanel {
     }
 
     private JPanel createStatsWithChartCard(String title, String value, String sub, Color color, JPanel chart) {
-        ModernCard card = new ModernCard(Color.WHITE);
+        Card card = new Card(Color.WHITE);
         card.setLayout(new BorderLayout()); card.setBorder(new EmptyBorder(20, 20, 20, 20));
         JPanel left = new JPanel(new GridLayout(3, 1, 0, 2)); left.setOpaque(false);
         JLabel t = new JLabel(value); t.setFont(new Font("SansSerif", Font.BOLD, 22)); t.setForeground(COL_HEAD);
@@ -164,9 +162,9 @@ public class HomePanel extends JPanel {
     }
 
     private JPanel createStatCard(String title, String value, String change, Color iconBg, String icon) {
-        ModernCard card = new ModernCard(Color.WHITE);
+        Card card = new Card(Color.WHITE);
         card.setLayout(new BorderLayout()); card.setBorder(new EmptyBorder(20, 20, 20, 20));
-        JPanel iconBox = new ModernCard(new Color(iconBg.getRed(), iconBg.getGreen(), iconBg.getBlue(), 40));
+        JPanel iconBox = new Card(new Color(iconBg.getRed(), iconBg.getGreen(), iconBg.getBlue(), 40));
         iconBox.setPreferredSize(new Dimension(45, 45));
         JLabel il = new JLabel(icon); il.setFont(new Font("SansSerif", Font.PLAIN, 20)); iconBox.add(il);
         JPanel header = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)); header.setOpaque(false); header.add(iconBox);
@@ -179,29 +177,8 @@ public class HomePanel extends JPanel {
         return card;
     }
 
-    private JPanel createDonutChartCard(String title, String sub, Color color) {
-        ModernCard card = new ModernCard(Color.WHITE);
-        card.setLayout(new BorderLayout()); card.setBorder(new EmptyBorder(20, 20, 20, 20));
-        JLabel t = new JLabel(title); t.setFont(new Font("SansSerif", Font.BOLD, 16)); t.setForeground(COL_HEAD);
-        JPanel chart = new JPanel() {
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D)g; g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                int s = Math.min(getWidth(), getHeight()) - 10; int x = (getWidth()-s)/2; int y = (getHeight()-s)/2;
-                g2.setStroke(new BasicStroke(12, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-                g2.setColor(new Color(240, 242, 245)); g2.drawArc(x, y, s, s, 0, 360);
-                g2.setColor(color); g2.drawArc(x, y, s, s, 90, -280);
-                g2.setColor(COL_HEAD); g2.setFont(new Font("SansSerif", Font.BOLD, 16));
-                String p = "78%"; g2.drawString(p, getWidth()/2 - g2.getFontMetrics().stringWidth(p)/2, getHeight()/2 + 6);
-            }
-        };
-        chart.setOpaque(false); chart.setPreferredSize(new Dimension(100, 100));
-        card.add(t, BorderLayout.NORTH); card.add(chart, BorderLayout.CENTER);
-        return card;
-    }
-
     private JPanel createTransactionListCard() {
-        ModernCard card = new ModernCard(Color.WHITE);
+        Card card = new Card(Color.WHITE);
         card.setLayout(new BorderLayout()); card.setBorder(new EmptyBorder(20, 20, 20, 20));
         JLabel t = new JLabel("Recent Transactions"); t.setFont(new Font("SansSerif", Font.BOLD, 16)); t.setForeground(COL_HEAD);
         card.add(t, BorderLayout.NORTH);
@@ -220,7 +197,7 @@ public class HomePanel extends JPanel {
 
     private JPanel createTransactionItem(String title, String sub, String amt, Color bg, Color fg) {
         JPanel p = new JPanel(new BorderLayout()); p.setOpaque(false);
-        JPanel icon = new ModernCard(bg); icon.setPreferredSize(new Dimension(40, 40));
+        JPanel icon = new Card(bg); icon.setPreferredSize(new Dimension(40, 40));
         JLabel l = new JLabel(title.substring(0,1)); l.setForeground(fg); l.setFont(new Font("SansSerif", Font.BOLD, 16)); icon.add(l);
         JPanel text = new JPanel(new GridLayout(2, 1)); text.setOpaque(false); text.setBorder(new EmptyBorder(0, 15, 0, 0));
         JLabel t = new JLabel(title); t.setFont(new Font("SansSerif", Font.BOLD, 14)); t.setForeground(COL_HEAD);
@@ -245,7 +222,7 @@ public class HomePanel extends JPanel {
     //  ADVANCED INTERACTIVE GRAPH ENGINE
     // =========================================================================
 
-// =========================================================================
+    // =========================================================================
     //  ADVANCED INTERACTIVE GRAPH ENGINE (Fixed Week/Day Logic)
     // =========================================================================
 

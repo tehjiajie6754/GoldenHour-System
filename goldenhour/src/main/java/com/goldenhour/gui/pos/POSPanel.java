@@ -5,7 +5,7 @@ import com.goldenhour.categories.Model;
 import com.goldenhour.categories.Sales;
 import com.goldenhour.dataload.DataLoad;
 import com.goldenhour.gui.common.BackgroundPanel;
-import com.goldenhour.gui.common.ModernCard;
+import com.goldenhour.gui.common.Card;
 import com.goldenhour.service.loginregister.AuthService;
 import com.goldenhour.storage.CSVHandler;
 import com.goldenhour.storage.DatabaseHandler;
@@ -91,7 +91,7 @@ public class POSPanel extends BackgroundPanel {
             setOpaque(false);
 
             // --- LEFT: CATALOG ---
-            ModernCard leftCard = new ModernCard(Color.WHITE);
+            Card leftCard = new Card(Color.WHITE);
             leftCard.setLayout(new BorderLayout());
             leftCard.setBorder(new EmptyBorder(15, 15, 15, 15));
             
@@ -129,7 +129,7 @@ public class POSPanel extends BackgroundPanel {
 
 
             // --- RIGHT: CART ---
-            ModernCard rightCard = new ModernCard(Color.WHITE);
+            Card rightCard = new Card(Color.WHITE);
             rightCard.setLayout(new BorderLayout());
             rightCard.setBorder(new EmptyBorder(15, 15, 15, 15));
 
@@ -264,7 +264,7 @@ public class POSPanel extends BackgroundPanel {
             setBorder(new EmptyBorder(0, 100, 0, 100)); 
 
             // --- LEFT: MAIN FORM AREA ---
-            ModernCard formCard = new ModernCard(Color.WHITE);
+            Card formCard = new Card(Color.WHITE);
             formCard.setLayout(new BorderLayout(0, 20));
             formCard.setBorder(new EmptyBorder(30, 40, 30, 40));
 
@@ -323,7 +323,7 @@ public class POSPanel extends BackgroundPanel {
             add(formCard, BorderLayout.CENTER);
 
             // --- RIGHT: SUMMARY SIDEBAR ---
-            ModernCard summaryCard = new ModernCard(Color.WHITE);
+            Card summaryCard = new Card(Color.WHITE);
             summaryCard.setPreferredSize(new Dimension(300, 0));
             summaryCard.setLayout(new BorderLayout());
             summaryCard.setBorder(new EmptyBorder(20, 20, 20, 20));
@@ -558,7 +558,6 @@ public class POSPanel extends BackgroundPanel {
     // =================================================================================
     class ConfirmationStepPanel extends JPanel {
         private JPanel invoiceContent; // The "Paper" part
-        private String finalReceiptText = ""; 
         private String receiptForStorage = "";
 
         public ConfirmationStepPanel() {
@@ -566,7 +565,7 @@ public class POSPanel extends BackgroundPanel {
             setOpaque(false);
             
             // --- 1. THE INVOICE AREA (CENTER) ---
-            ModernCard invoiceCard = new ModernCard(Color.WHITE);
+            Card invoiceCard = new Card(Color.WHITE);
             invoiceCard.setLayout(new BorderLayout());
             invoiceCard.setBorder(new EmptyBorder(40, 50, 40, 50)); 
 

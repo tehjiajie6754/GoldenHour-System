@@ -7,6 +7,7 @@ import com.goldenhour.storage.DatabaseHandler;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -58,5 +59,31 @@ public class SalesCalculator {
 
         // 5. Pack and Return
         return new DailySalesSummary(targetDate, finalOutlet, totalSales, count, breakdown);
+    }
+
+    // Add this method to SalesCalculator class
+    public static List<ProductStats> getTop5Products() {
+        // Ensure data is loaded
+        if (DataLoad.allSales == null || DataLoad.allSales.isEmpty()) {
+            DataLoad.allSales = DatabaseHandler.fetchAllSales();
+        }
+
+        // Group by Model Code and Sum Quantity & Revenue
+        Map<String, ProductStats> statsMap = new HashMap<>();
+
+        for (Sales s : DataLoad.allSales) {
+            String code = s.getModel(); // Assuming getModel() returns model_code
+            statsMap.putIfAbsent(code, new ProductStats(code, 0, 0.0));
+            
+            ProductStats current = statsMap.get(code);
+            current.totalQty += s.getQuantity();
+            current.totalRevenue += s.getSubtotal();
+        }
+
+        // Convert to list, sort descending by Quantity, and take top 5
+        return statsMap.values().stream()
+                .sorted((p1, p2) -> Integer.compare(p2.totalQty, p1.totalQty)) // Sort High to Low
+                .limit(5)
+                .collect(Collectors.toList());
     }
 }

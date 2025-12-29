@@ -4,7 +4,7 @@ import com.goldenhour.gui.admin.DatabaseViewerPanel;
 import com.goldenhour.gui.admin.RegisterEmployeePanel;
 import com.goldenhour.gui.auth.LoginFrame;
 import com.goldenhour.gui.common.BackgroundPanel;
-import com.goldenhour.gui.common.ModernSidebarButton;
+import com.goldenhour.gui.common.SidebarButton;
 import com.goldenhour.gui.hr.AttendancePanel;
 import com.goldenhour.gui.inventory.StockOperationsPanel;
 import com.goldenhour.gui.inventory.StockPanel;
@@ -23,7 +23,7 @@ public class MainDashboardFrame extends JFrame {
     private JPanel mainContentPanel;
     private CardLayout cardLayout;
     private JPanel sidebar;
-    private List<ModernSidebarButton> navButtons = new ArrayList<>();
+    private List<SidebarButton> navButtons = new ArrayList<>();
 
     public MainDashboardFrame() {
         setTitle("Golden Hour System");
@@ -33,7 +33,7 @@ public class MainDashboardFrame extends JFrame {
         setLayout(new BorderLayout());
 
         try {
-            ImageIcon appIcon = new ImageIcon("C:\\Users\\60115\\OneDrive\\Desktop\\Y1S1\\GoldenHour-System\\goldenhour\\image\\app_icon_1.png");
+            ImageIcon appIcon = new ImageIcon("goldenhour\\image\\app_icon_1.png");
             setIconImage(appIcon.getImage());
         } catch (Exception e) {
             System.out.println("App Icon not found.");
@@ -100,7 +100,7 @@ public class MainDashboardFrame extends JFrame {
         sidebar.add(Box.createVerticalGlue());
 
         // -- Logout Button --
-        ModernSidebarButton logoutBtn = new ModernSidebarButton("Log Out", "➜");
+        SidebarButton logoutBtn = new SidebarButton("Log Out", "➜");
         logoutBtn.setMaximumSize(new Dimension(240, 50));
         logoutBtn.setAlignmentX(Component.LEFT_ALIGNMENT); // Align logout too
         logoutBtn.setForeground(new Color(234, 6, 6)); // Red
@@ -144,7 +144,7 @@ public class MainDashboardFrame extends JFrame {
     }
 
     private JButton createNavButton(String text, String cardName, String icon, boolean active) {
-        ModernSidebarButton btn = new ModernSidebarButton(text, icon);
+        SidebarButton btn = new SidebarButton(text, icon);
         btn.setMaximumSize(new Dimension(240, 50)); // Fixed width, nice height
         btn.setAlignmentX(Component.LEFT_ALIGNMENT); // Critical for BoxLayout
         btn.setActive(active);
@@ -153,7 +153,7 @@ public class MainDashboardFrame extends JFrame {
 
         btn.addActionListener(e -> {
             // 1. Reset all buttons to inactive
-            for (ModernSidebarButton b : navButtons) {
+            for (SidebarButton b : navButtons) {
                 b.setActive(false);
             }
             // 2. Set this one to active

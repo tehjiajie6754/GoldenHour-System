@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class ModernSidebarButton extends JButton {
+public class SidebarButton extends JButton {
     private boolean isActive = false;
     private Color activeColor = new Color(23, 193, 232); // Cyan Blue (Soft UI)
     private Color activeText = Color.WHITE;
@@ -14,7 +14,7 @@ public class ModernSidebarButton extends JButton {
     private Color hoverBg = new Color(245, 245, 245);
     private String iconSymbol;
 
-    public ModernSidebarButton(String text, String iconSymbol) {
+    public SidebarButton(String text, String iconSymbol) {
         super(text);
         this.iconSymbol = iconSymbol;
         

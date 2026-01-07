@@ -21,9 +21,11 @@ import java.util.List;
 /**
  * MainDashboardFrame - Primary application window and navigation hub.
  *
- * This is the main GUI frame that serves as the central hub for the GoldenHour System.
+ * This is the main GUI frame that serves as the central hub for the GoldenHour
+ * System.
  * It provides a sidebar-based navigation system with role-based access control,
- * allowing different user types (Manager, Staff) to access appropriate features.
+ * allowing different user types (Manager, Staff) to access appropriate
+ * features.
  *
  * Key Features:
  * - Sidebar navigation with role-based menu items
@@ -33,33 +35,38 @@ import java.util.List;
  * - Automatic logout and session management
  * - Responsive UI with consistent styling
  *
- * The frame manages panel instances and coordinates data synchronization between
- * different components, particularly between registration and database viewing panels.
+ * The frame manages panel instances and coordinates data synchronization
+ * between
+ * different components, particularly between registration and database viewing
+ * panels.
  *
  * @author GoldenHour System Team
  */
 public class MainDashboardFrame extends JFrame {
 
     // Main UI components
-    private JPanel mainContentPanel;        // Container for different panels using CardLayout
-    private CardLayout cardLayout;          // Layout manager for panel switching
-    private JPanel sidebar;                 // Left sidebar with navigation buttons
+    private JPanel mainContentPanel; // Container for different panels using CardLayout
+    private CardLayout cardLayout; // Layout manager for panel switching
+    private JPanel sidebar; // Left sidebar with navigation buttons
 
     // Navigation state
-    private List<SidebarButton> navButtons = new ArrayList<>();  // List of all navigation buttons
+    private List<SidebarButton> navButtons = new ArrayList<>(); // List of all navigation buttons
 
     // Panel references for inter-panel communication
-    private DatabaseViewerPanel databaseViewerPanel;  // Reference for data synchronization
+    private DatabaseViewerPanel databaseViewerPanel; // Reference for data synchronization
+    private HomePanel homePanel; // Reference for dashboard refresh
 
     /**
-     * Constructor - Initializes the main dashboard frame with sidebar navigation and content panels.
+     * Constructor - Initializes the main dashboard frame with sidebar navigation
+     * and content panels.
      *
      * Sets up the complete UI structure including:
      * - Window properties (title, size, icon)
      * - Sidebar with navigation buttons (role-based visibility)
      * - Main content area with CardLayout for panel switching
      * - Panel instances for all application features
-     * - Inter-panel communication setup (database viewer reference for registration panel)
+     * - Inter-panel communication setup (database viewer reference for registration
+     * panel)
      */
     public MainDashboardFrame() {
         setTitle("Golden Hour System");
@@ -84,30 +91,33 @@ public class MainDashboardFrame extends JFrame {
         sidebar.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(230, 230, 230)));
 
         // -- Header (Text Version - Crisp & Professional) --
-        // Use FlowLayout CENTER to ensure the text sits right in the middle horizontally
+        // Use FlowLayout CENTER to ensure the text sits right in the middle
+        // horizontally
         JPanel header = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 15));
         header.setBackground(Color.WHITE);
-        
+
         // STRICT SIZE LOCK: prevents it from growing or shrinking
         Dimension headerSize = new Dimension(260, 60);
         header.setPreferredSize(headerSize);
         header.setMinimumSize(headerSize);
         header.setMaximumSize(headerSize);
-        
-        // CRITICAL FIX: Align the panel itself to the LEFT so it stacks perfectly with buttons
+
+        // CRITICAL FIX: Align the panel itself to the LEFT so it stacks perfectly with
+        // buttons
         header.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // Using HTML to do Dual-Color Text matching your logo
-        JLabel logoLabel = new JLabel("<html><span style='color:#FFC107'>Golden</span><span style='color:#344767'>Hour</span></html>");
-        logoLabel.setFont(new Font("SansSerif", Font.BOLD, 26)); 
-        
+        JLabel logoLabel = new JLabel(
+                "<html><span style='color:#FFC107'>Golden</span><span style='color:#344767'>Hour</span></html>");
+        logoLabel.setFont(new Font("SansSerif", Font.BOLD, 26));
+
         header.add(logoLabel);
         sidebar.add(header);
 
         // -- Navigation Items (Using Unicode Icons) --
         sidebar.add(createNavButton("Dashboard", "HOME", "⊞", true)); // Default Active
         sidebar.add(Box.createVerticalStrut(10));
-        
+
         sidebar.add(createLabel("MANAGEMENT"));
         sidebar.add(createNavButton("Attendance", "ATTENDANCE", "🕒", false));
         sidebar.add(createNavButton("Stock Inventory", "STOCK", "📦", false));
@@ -115,9 +125,9 @@ public class MainDashboardFrame extends JFrame {
 
         // === NEW: MANAGER-ONLY SECTION ===
         // Check if current user is a Manager
-        if (AuthService.getCurrentUser() != null && 
-            "Manager".equalsIgnoreCase(AuthService.getCurrentUser().getRole())) {
-            
+        if (AuthService.getCurrentUser() != null &&
+                "Manager".equalsIgnoreCase(AuthService.getCurrentUser().getRole())) {
+
             sidebar.add(Box.createVerticalStrut(10));
             sidebar.add(createLabel("ADMIN"));
             // Add the new button
@@ -151,12 +161,13 @@ public class MainDashboardFrame extends JFrame {
         // === 2. MAIN CONTENT AREA (MODIFIED FOR BACKGROUND) ===
         cardLayout = new CardLayout();
         // Use BackgroundPanel here so the gaps between cards also show the image
-        mainContentPanel = new BackgroundPanel(); 
+        mainContentPanel = new BackgroundPanel();
         mainContentPanel.setLayout(cardLayout);
-        mainContentPanel.setBorder(new EmptyBorder(0,0,0,0)); // Remove padding here, let panels handle it
+        mainContentPanel.setBorder(new EmptyBorder(0, 0, 0, 0)); // Remove padding here, let panels handle it
 
         // Add Pages
-        mainContentPanel.add(new HomePanel(), "HOME");
+        homePanel = new HomePanel();
+        mainContentPanel.add(homePanel, "HOME");
         mainContentPanel.add(new AttendancePanel(), "ATTENDANCE");
         mainContentPanel.add(new StockPanel(), "STOCK");
         mainContentPanel.add(new POSPanel(), "POS");
@@ -186,12 +197,13 @@ public class MainDashboardFrame extends JFrame {
     }
 
     /**
-     * Creates a navigation button for the sidebar with proper styling and event handling.
+     * Creates a navigation button for the sidebar with proper styling and event
+     * handling.
      *
-     * @param text Display text for the button
+     * @param text     Display text for the button
      * @param cardName Identifier for the corresponding panel in CardLayout
-     * @param icon Unicode icon character for visual representation
-     * @param active Whether this button should be initially active/selected
+     * @param icon     Unicode icon character for visual representation
+     * @param active   Whether this button should be initially active/selected
      * @return Configured SidebarButton with click handler for panel switching
      */
     private JButton createNavButton(String text, String cardName, String icon, boolean active) {
@@ -218,6 +230,11 @@ public class MainDashboardFrame extends JFrame {
             if ("DB_VIEWER".equals(cardName) && databaseViewerPanel != null) {
                 databaseViewerPanel.refreshData();
             }
+
+            // Special handling: refresh dashboard to show updated sales/KPI immediately
+            if ("HOME".equals(cardName) && homePanel != null) {
+                homePanel.refreshData();
+            }
         });
 
         return btn;
@@ -228,12 +245,12 @@ public class MainDashboardFrame extends JFrame {
         for (SidebarButton btn : navButtons) {
             // Find the button with matching card name by checking its text
             if ((cardName.equals("HOME") && btn.getText().equals("Dashboard")) ||
-                (cardName.equals("ATTENDANCE") && btn.getText().equals("Attendance")) ||
-                (cardName.equals("STOCK") && btn.getText().equals("Stock Inventory")) ||
-                (cardName.equals("STOCK_OPS") && btn.getText().equals("Stock Operations")) ||
-                (cardName.equals("SALES") && btn.getText().equals("Sales")) ||
-                (cardName.equals("REGISTER_EMP") && btn.getText().equals("Register Employee")) ||
-                (cardName.equals("DB_VIEWER") && btn.getText().equals("Manage Database"))) {
+                    (cardName.equals("ATTENDANCE") && btn.getText().equals("Attendance")) ||
+                    (cardName.equals("STOCK") && btn.getText().equals("Stock Inventory")) ||
+                    (cardName.equals("STOCK_OPS") && btn.getText().equals("Stock Operations")) ||
+                    (cardName.equals("SALES") && btn.getText().equals("Sales")) ||
+                    (cardName.equals("REGISTER_EMP") && btn.getText().equals("Register Employee")) ||
+                    (cardName.equals("DB_VIEWER") && btn.getText().equals("Manage Database"))) {
                 btn.setActive(true);
             } else {
                 btn.setActive(false);

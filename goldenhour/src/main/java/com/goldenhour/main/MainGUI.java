@@ -9,13 +9,17 @@ import javax.swing.SwingUtilities;
 /**
  * MainGUI - Application entry point for the GoldenHour System GUI application.
  *
- * This class serves as the main entry point for the graphical user interface version
- * of the GoldenHour retail management system. It initializes the application by:
+ * This class serves as the main entry point for the graphical user interface
+ * version
+ * of the GoldenHour retail management system. It initializes the application
+ * by:
  * - Starting the automated email scheduler for daily headquarters reports
- * - Loading all system data (employees, inventory, sales, etc.) from files and database
+ * - Loading all system data (employees, inventory, sales, etc.) from files and
+ * database
  * - Launching the login interface on the Event Dispatch Thread
  *
- * The application follows a standard Swing application pattern with proper thread
+ * The application follows a standard Swing application pattern with proper
+ * thread
  * management to ensure UI responsiveness and thread safety.
  *
  * @author GoldenHour System Team
@@ -36,7 +40,12 @@ public class MainGUI {
         // Start automated email service for daily headquarters reports at 10 PM
         AutoEmail.startDailyScheduler();
 
-        // Load all system data (employees, inventory, sales, outlets) from CSV and database
+        // Check and seed 2025 data if missing
+        System.out.println("Checking data integrity...");
+        com.goldenhour.utils.Seeder.seed2025Data();
+
+        // Load all system data (employees, inventory, sales, outlets) from CSV and
+        // database
         System.out.println("Starting GUI Application...");
         DataLoad.loadAllData();
 

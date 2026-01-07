@@ -13,3 +13,33 @@ Method: Cash
 Employee: Test Manager
 
 --------------------------------------------------
+=== Sales Receipt ===
+Date: 2026-01-08
+Time: 04:13 am
+Outlet: C60
+Customer: Rachel
+----------------------------------
+ITEMS PURCHASED:
+SW2500-4           x 2   RM  1650.00
+----------------------------------
+Total Items: 1
+Grand Total: RM 1650.00
+Method: Cash
+Employee: Hong Han
+
+--------------------------------------------------
+=== Sales Receipt ===
+Date: 2026-01-08
+Time: 04:22 am
+Outlet: C60
+Customer: Clan
+----------------------------------
+ITEMS PURCHASED:
+SW2400-1           x 1   RM   789.00
+----------------------------------
+Total Items: 1
+Grand Total: RM 789.00
+Method: Cash
+Employee: Hong Han
+
+--------------------------------------------------

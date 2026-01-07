@@ -32,6 +32,7 @@ import java.awt.event.KeyEvent;
  * Key Features:
  * - Multi-table support (Employees, Stock, Attendance, Sales, Outlets)
  * - Real-time search and filtering
+ * - Smart navigation: "Add New" for employees redirects to Register Employee page
  * - Outlet-specific filtering for stock data
  * - Editable table cells with validation
  * - Automatic data synchronization
@@ -50,7 +51,15 @@ public class DatabaseViewerPanel extends BackgroundPanel {
     // State variables
     private String currentCategory = "Employees";  // Currently displayed data category
 
+    // Navigation callback for switching to register employee page
+    private Runnable navigateToRegisterEmployee;
+
     public DatabaseViewerPanel() {
+        this(null);
+    }
+
+    public DatabaseViewerPanel(Runnable navigateToRegisterEmployee) {
+        this.navigateToRegisterEmployee = navigateToRegisterEmployee;
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(20, 30, 30, 30));
 
@@ -316,7 +325,12 @@ public class DatabaseViewerPanel extends BackgroundPanel {
                 break;
                 
             case "Employees":
-                JOptionPane.showMessageDialog(this, "Use 'Register Employee' page for better validation.");
+                // Navigate to Register Employee page instead of showing dialog
+                if (navigateToRegisterEmployee != null) {
+                    navigateToRegisterEmployee.run();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Use 'Register Employee' page for better validation.");
+                }
                 break;
                 
             default:

@@ -163,7 +163,12 @@ public class MainDashboardFrame extends JFrame {
         mainContentPanel.add(new StockOperationsPanel(), "STOCK_OPS");
         mainContentPanel.add(new SalesHistoryPanel(), "SALES_HIST");
         // === ADD THE NEW PANEL TO CARD LAYOUT ===
-        databaseViewerPanel = new DatabaseViewerPanel();
+        databaseViewerPanel = new DatabaseViewerPanel(() -> {
+            // Navigation callback to switch to Register Employee panel
+            cardLayout.show(mainContentPanel, "REGISTER_EMP");
+            // Update sidebar to show Register Employee as active
+            updateSidebarActive("REGISTER_EMP");
+        });
         mainContentPanel.add(new RegisterEmployeePanel(databaseViewerPanel), "REGISTER_EMP");
         mainContentPanel.add(databaseViewerPanel, "DB_VIEWER");
 

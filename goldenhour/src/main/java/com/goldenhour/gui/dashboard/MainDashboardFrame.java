@@ -18,14 +18,49 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * MainDashboardFrame - Primary application window and navigation hub.
+ *
+ * This is the main GUI frame that serves as the central hub for the GoldenHour System.
+ * It provides a sidebar-based navigation system with role-based access control,
+ * allowing different user types (Manager, Staff) to access appropriate features.
+ *
+ * Key Features:
+ * - Sidebar navigation with role-based menu items
+ * - CardLayout-based panel switching for smooth transitions
+ * - Manager-only administrative functions (Register Employee, Manage Database)
+ * - Staff-level functions (Attendance, Stock, POS, Sales History)
+ * - Automatic logout and session management
+ * - Responsive UI with consistent styling
+ *
+ * The frame manages panel instances and coordinates data synchronization between
+ * different components, particularly between registration and database viewing panels.
+ *
+ * @author GoldenHour System Team
+ */
 public class MainDashboardFrame extends JFrame {
 
-    private JPanel mainContentPanel;
-    private CardLayout cardLayout;
-    private JPanel sidebar;
-    private List<SidebarButton> navButtons = new ArrayList<>();
-    private DatabaseViewerPanel databaseViewerPanel;
+    // Main UI components
+    private JPanel mainContentPanel;        // Container for different panels using CardLayout
+    private CardLayout cardLayout;          // Layout manager for panel switching
+    private JPanel sidebar;                 // Left sidebar with navigation buttons
 
+    // Navigation state
+    private List<SidebarButton> navButtons = new ArrayList<>();  // List of all navigation buttons
+
+    // Panel references for inter-panel communication
+    private DatabaseViewerPanel databaseViewerPanel;  // Reference for data synchronization
+
+    /**
+     * Constructor - Initializes the main dashboard frame with sidebar navigation and content panels.
+     *
+     * Sets up the complete UI structure including:
+     * - Window properties (title, size, icon)
+     * - Sidebar with navigation buttons (role-based visibility)
+     * - Main content area with CardLayout for panel switching
+     * - Panel instances for all application features
+     * - Inter-panel communication setup (database viewer reference for registration panel)
+     */
     public MainDashboardFrame() {
         setTitle("Golden Hour System");
         setSize(1280, 800);
@@ -39,7 +74,7 @@ public class MainDashboardFrame extends JFrame {
         } catch (Exception e) {
             System.out.println("App Icon not found.");
         }
-        
+
         // === 1. SIDEBAR SETUP ===
         sidebar = new JPanel();
         sidebar.setBackground(Color.WHITE);
@@ -50,7 +85,7 @@ public class MainDashboardFrame extends JFrame {
 
         // -- Header (Text Version - Crisp & Professional) --
         // Use FlowLayout CENTER to ensure the text sits right in the middle horizontally
-        JPanel header = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 15)); 
+        JPanel header = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 15));
         header.setBackground(Color.WHITE);
         
         // STRICT SIZE LOCK: prevents it from growing or shrinking
@@ -145,26 +180,36 @@ public class MainDashboardFrame extends JFrame {
         return lbl;
     }
 
+    /**
+     * Creates a navigation button for the sidebar with proper styling and event handling.
+     *
+     * @param text Display text for the button
+     * @param cardName Identifier for the corresponding panel in CardLayout
+     * @param icon Unicode icon character for visual representation
+     * @param active Whether this button should be initially active/selected
+     * @return Configured SidebarButton with click handler for panel switching
+     */
     private JButton createNavButton(String text, String cardName, String icon, boolean active) {
         SidebarButton btn = new SidebarButton(text, icon);
         btn.setMaximumSize(new Dimension(240, 50)); // Fixed width, nice height
         btn.setAlignmentX(Component.LEFT_ALIGNMENT); // Critical for BoxLayout
         btn.setActive(active);
-        
+
         navButtons.add(btn); // Add to list so we can reset them later
 
         btn.addActionListener(e -> {
-            // 1. Reset all buttons to inactive
+            // Reset all navigation buttons to inactive state
             for (SidebarButton b : navButtons) {
                 b.setActive(false);
             }
-            // 2. Set this one to active
+            // Set clicked button to active state
             btn.setActive(true);
-            
-            // 3. Switch Page
+
+            // Switch to the corresponding panel
             cardLayout.show(mainContentPanel, cardName);
-            
-            // 4. Refresh database viewer if switching to it
+
+            // Special handling: refresh database viewer when navigating to it
+            // This ensures the latest data is displayed
             if ("DB_VIEWER".equals(cardName) && databaseViewerPanel != null) {
                 databaseViewerPanel.refreshData();
             }

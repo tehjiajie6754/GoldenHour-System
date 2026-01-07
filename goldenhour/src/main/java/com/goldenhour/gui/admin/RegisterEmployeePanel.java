@@ -11,21 +11,53 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
+/**
+ * RegisterEmployeePanel - GUI panel for registering new employees in the system.
+ *
+ * This panel provides a form interface for managers to create new employee accounts.
+ * It validates input, checks for duplicate IDs, and saves the employee data to both
+ * the database and CSV files. After successful registration, it automatically refreshes
+ * the database viewer panel to show the new employee immediately.
+ *
+ * Features:
+ * - Input validation for required fields
+ * - Duplicate ID checking
+ * - Role selection (Full-time, Part-time, Manager)
+ * - Automatic data synchronization with database viewer
+ *
+ * @author GoldenHour System Team
+ */
 public class RegisterEmployeePanel extends BackgroundPanel {
 
+    // Form input fields
     private JTextField nameField, idField, passField;
     private JComboBox<String> roleCombo;
+
+    // Reference to database viewer for automatic refresh after registration
     private DatabaseViewerPanel databaseViewerPanel;
 
+    /**
+     * Constructor with database viewer reference for automatic refresh functionality.
+     *
+     * @param databaseViewerPanel Reference to the DatabaseViewerPanel to refresh after registration
+     */
     public RegisterEmployeePanel(DatabaseViewerPanel databaseViewerPanel) {
         this.databaseViewerPanel = databaseViewerPanel;
         initializeUI();
     }
 
+    /**
+     * Default constructor for backward compatibility.
+     * Creates panel without automatic refresh functionality.
+     */
     public RegisterEmployeePanel() {
         this(null);
     }
 
+    /**
+     * Initializes the user interface components and layout.
+     * Sets up the registration form with input fields and register button.
+     */
     private void initializeUI() {
         setLayout(new GridBagLayout()); // Center the card
         setBorder(new EmptyBorder(30, 30, 30, 30));
@@ -105,47 +137,70 @@ public class RegisterEmployeePanel extends BackgroundPanel {
         add(card);
     }
 
+    /**
+     * Handles the employee registration process when the register button is clicked.
+     *
+     * This method performs the following steps:
+     * 1. Validates that all required fields are filled
+     * 2. Checks for duplicate employee IDs
+     * 3. Creates a new Employee object
+     * 4. Saves the employee to both database and CSV files
+     * 5. Shows success message and refreshes the database viewer
+     * 6. Clears the form fields for the next registration
+     */
     private void performRegistration() {
+        // Get and trim input values
         String name = nameField.getText().trim();
         String id = idField.getText().trim();
         String pass = passField.getText().trim();
         String role = (String) roleCombo.getSelectedItem();
 
-        // Validation
+        // Input validation - ensure all required fields are filled
         if (name.isEmpty() || id.isEmpty() || pass.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Check if ID exists
+        // Check for duplicate employee ID to prevent conflicts
         boolean exists = DataLoad.allEmployees.stream().anyMatch(u -> u.getId().equalsIgnoreCase(id));
         if (exists) {
             JOptionPane.showMessageDialog(this, "Employee ID " + id + " already exists!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // Create & Save
+        // Create new employee object with provided details
         Employee newEmployee = new Employee(id, name, role, pass);
+
+        // Add to in-memory list for immediate access
         DataLoad.allEmployees.add(newEmployee);
-        
-        // Save to Database & CSV
+
+        // Persist data to both database and CSV files for redundancy
         DatabaseHandler.saveEmployee(newEmployee);
         CSVHandler.writeEmployees(DataLoad.allEmployees);
+
+        // Show success confirmation to user
         JOptionPane.showMessageDialog(this, "Employee Registered Successfully!\nName: " + name + "\nID: " + id);
-        
-        // Refresh database viewer if available
+
+        // Refresh database viewer to show new employee immediately
         if (databaseViewerPanel != null) {
             databaseViewerPanel.refreshData();
         }
-        
-        // Clear fields
+
+        // Clear form fields for next registration
         nameField.setText("");
         idField.setText("");
         passField.setText("");
         roleCombo.setSelectedIndex(0);
     }
 
-    // --- Helpers ---
+    // --- Helper Methods for UI Components ---
+
+    /**
+     * Creates a styled label for form fields with consistent formatting.
+     *
+     * @param text The text to display on the label
+     * @return A configured JLabel with proper styling
+     */
     private JLabel createLabel(String text) {
         JLabel l = new JLabel(text);
         l.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -154,6 +209,12 @@ public class RegisterEmployeePanel extends BackgroundPanel {
         return l;
     }
 
+    /**
+     * Creates a styled text field for form input with consistent appearance.
+     *
+     * @param placeholder Placeholder text (not actually used as placeholder, just for documentation)
+     * @return A configured JTextField with proper styling and border
+     */
     private JTextField createField(String placeholder) {
         JTextField f = new JTextField();
         f.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));

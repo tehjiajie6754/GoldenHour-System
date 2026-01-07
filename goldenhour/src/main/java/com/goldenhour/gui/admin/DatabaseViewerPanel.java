@@ -15,14 +15,40 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+/**
+ * DatabaseViewerPanel - Administrative interface for viewing and managing system data.
+ *
+ * This panel provides a comprehensive data management interface for administrators to:
+ * - View all employees, stock inventory, attendance records, sales data, and outlets
+ * - Search and filter data across different categories
+ * - Add new records to the system
+ * - Edit existing records directly in the table
+ * - Delete records with confirmation
+ * - Save changes back to both database and CSV files
+ *
+ * The panel automatically refreshes data from the database to ensure consistency
+ * and provides real-time updates when data is modified from other parts of the system.
+ *
+ * Key Features:
+ * - Multi-table support (Employees, Stock, Attendance, Sales, Outlets)
+ * - Real-time search and filtering
+ * - Outlet-specific filtering for stock data
+ * - Editable table cells with validation
+ * - Automatic data synchronization
+ *
+ * @author GoldenHour System Team
+ */
 public class DatabaseViewerPanel extends BackgroundPanel {
 
-    private JComboBox<String> tableSelector;
-    private JComboBox<String> outletFilter;
-    private JTextField searchField;
-    private JTable dataTable;
-    private DefaultTableModel tableModel;
-    private String currentCategory = "Employees";
+    // UI Components
+    private JComboBox<String> tableSelector;  // Dropdown to select data category
+    private JComboBox<String> outletFilter;   // Filter for outlet-specific data
+    private JTextField searchField;           // Search input field
+    private JTable dataTable;                 // Main data display table
+    private DefaultTableModel tableModel;     // Table data model
+
+    // State variables
+    private String currentCategory = "Employees";  // Currently displayed data category
 
     public DatabaseViewerPanel() {
         setLayout(new BorderLayout());
@@ -135,10 +161,19 @@ public class DatabaseViewerPanel extends BackgroundPanel {
 
     // --- LOGIC METHODS ---
 
+    /**
+     * Public method to refresh the displayed data from the database.
+     * This method can be called externally to update the table with latest data.
+     * Useful for synchronizing the view after data modifications from other panels.
+     */
     public void refreshData() {
         loadTableData();
     }
 
+    /**
+     * Refreshes the outlet filter dropdown with current outlet data.
+     * Populates the combo box with "All Outlets" option plus all available outlet codes.
+     */
     private void refreshOutletCombo() {
         outletFilter.removeAllItems();
         outletFilter.addItem("All Outlets");
@@ -155,20 +190,26 @@ public class DatabaseViewerPanel extends BackgroundPanel {
         loadTableData();
     }
 
+    /**
+     * Loads and displays data for the currently selected category.
+     * Fetches fresh data from the database to ensure consistency and updates the table model.
+     * Handles different data categories (Employees, Stock, Attendance, Sales, Outlets) with
+     * appropriate column headers and data formatting.
+     */
     private void loadTableData() {
-        tableModel.setRowCount(0);
+        tableModel.setRowCount(0);  // Clear existing table data
         String selectedOutlet = (String) outletFilter.getSelectedItem();
         if(selectedOutlet == null) selectedOutlet = "All Outlets";
 
         // === CRITICAL FIX: FETCH FRESH DATA FROM DB ===
         // This ensures the Admin Panel sees exactly what is in the SQLite Database
-        
+
         try {
             switch (currentCategory) {
                 case "Employees":
-                    // 1. Fetch Fresh
-                    DataLoad.allEmployees = DatabaseHandler.fetchAllEmployees(); 
-                    
+                    // Fetch latest employee data from database
+                    DataLoad.allEmployees = DatabaseHandler.fetchAllEmployees();
+
                     tableModel.setColumnIdentifiers(new String[]{"ID", "Name", "Role", "Password"});
                     for (Employee e : DataLoad.allEmployees) {
                         tableModel.addRow(new Object[]{e.getId(), e.getName(), e.getRole(), e.getPassword()});
@@ -176,9 +217,9 @@ public class DatabaseViewerPanel extends BackgroundPanel {
                     break;
 
                 case "Stock Inventory":
-                    // 1. Fetch Fresh
+                    // Fetch latest stock data with outlet information
                     DataLoad.allModels = DatabaseHandler.fetchAllModelsWithStock();
-                    
+
                     boolean isSpecific = !"All Outlets".equals(selectedOutlet);
                     String stockCol = isSpecific ? "Stock (" + selectedOutlet + ")" : "Total Stock (Read-Only)";
                     tableModel.setColumnIdentifiers(new String[]{"Model Code", "Price (RM)", stockCol});

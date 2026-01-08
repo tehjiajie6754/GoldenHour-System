@@ -41,13 +41,15 @@ public class MainGUI {
         AutoEmail.startDailyScheduler();
 
         // Check and seed 2025 data if missing
-        System.out.println("Checking data integrity...");
+        System.out.println("\nChecking data integrity...");
         com.goldenhour.utils.Seeder.seed2025Data();
 
         // Load all system data (employees, inventory, sales, outlets) from CSV and
         // database
-        System.out.println("Starting GUI Application...");
+        
         DataLoad.loadAllData();
+        
+        System.out.println("\nStarting GUI Application...");
 
         // Launch the login interface on the Event Dispatch Thread for thread safety
         SwingUtilities.invokeLater(() -> {

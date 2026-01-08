@@ -12,7 +12,7 @@ import java.util.Random;
 public class Seeder {
 
     public static void seed2025Data() {
-        System.out.println("Checking for 2025 data...");
+        //System.out.println("Checking for 2025 data...");
 
         Random random = new Random();
         String[] models = { "M-001", "M-002", "M-003", "M-004" }; // Dummy models
@@ -32,11 +32,11 @@ public class Seeder {
         // If a month is missing, we populate it.
         for (int month = 1; month <= 12; month++) {
             if (hasDataForMonth(2025, month)) {
-                System.out.println("Data exists for 2025-" + month + ". Skipping.");
+                //System.out.println("Data exists for 2025-" + month + ". Skipping.");
                 continue;
             }
 
-            System.out.println("Seeding data for 2025-" + month + "...");
+            //System.out.println("Seeding data for 2025-" + month + "...");
             anySeeded = true;
 
             int salesCount = 10 + random.nextInt(10); // Base sales per month
@@ -84,9 +84,9 @@ public class Seeder {
         }
 
         if (anySeeded) {
-            System.out.println("2025 data seeding complete.");
+            //System.out.println("2025 data seeding complete.");
         } else {
-            System.out.println("2025 data checks complete - everything is populated.");
+           // System.out.println("2025 data checks complete - everything is populated.");
         }
     }
 

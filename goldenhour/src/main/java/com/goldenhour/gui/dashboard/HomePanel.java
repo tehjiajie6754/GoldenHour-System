@@ -589,7 +589,8 @@ public class HomePanel extends JPanel {
 
         public void setYearAndFilter(String year, String filter) {
             this.selectedYear = year;
-            this.currentFilter = filter;
+            // Prevent null filter - use default if null
+            this.currentFilter = (filter != null) ? filter : "Year";
             this.zoom = 1.0;
             this.xOffset = 0;
             refreshData();

@@ -43,3 +43,18 @@ Method: Cash
 Employee: Hong Han
 
 --------------------------------------------------
+=== Sales Receipt ===
+Date: 2026-01-08
+Time: 12:24 PM
+Outlet: C60
+Customer: Tan
+----------------------------------
+ITEMS PURCHASED:
+SW2500-1           x 1   RM   845.00
+----------------------------------
+Total Items: 1
+Grand Total: RM 845.00
+Method: Cash
+Employee: Hong Han
+
+--------------------------------------------------

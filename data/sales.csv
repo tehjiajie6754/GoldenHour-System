@@ -37,3 +37,5 @@ date,time,customerName,model,quantity,subtotal,transactionMethod,employee
 2026-01-08,04:12 am,Rachel,SW2500-4,2,1650.0,Cash,Hong Han,C60,Hong Han
 2026-01-08,04:22 am,Clan,SW2400-1,1,789.0,Cash,Hong Han,C60,Hong Han
 2026-01-08,12:24 PM,Tan,SW2500-1,1,845.0,Cash,Hong Han,C60,Hong Han
+2026-01-08,04:23 pm,Jeff,SW2400-1,1,789.0,Cash,Li Xinyi,C60,C6008
+2026-01-08,04:29 pm,Jeff,SW2400-2,1,769.0,Cash,Jeff,C60,Jeff

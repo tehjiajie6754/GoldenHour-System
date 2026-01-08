@@ -20,10 +20,13 @@ import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
@@ -33,16 +36,16 @@ public class SalesHistoryPanel extends JPanel {
     private JTable table;
     private DefaultTableModel tableModel;
     private TableRowSorter<DefaultTableModel> sorter;
-    
+
     // Controls
     private JTextField searchField;
     private JComboBox<String> filterMethodCombo;
     private JComboBox<String> sortCombo;
-    
+
     // CUSTOM DATE PICKERS
     private ModernDatePicker fromDatePicker;
     private ModernDatePicker toDatePicker;
-    
+
     private JLabel totalSalesLabel;
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -55,9 +58,8 @@ public class SalesHistoryPanel extends JPanel {
         JPanel cardPanel = new JPanel(new BorderLayout(0, 20));
         cardPanel.setBackground(Color.WHITE);
         cardPanel.setBorder(new CompoundBorder(
-            new LineBorder(new Color(230, 230, 230), 1, true),
-            new EmptyBorder(25, 25, 25, 25)
-        ));
+                new LineBorder(new Color(230, 230, 230), 1, true),
+                new EmptyBorder(25, 25, 25, 25)));
 
         // 2. HEADER
         JPanel topPanel = new JPanel(new BorderLayout(0, 15));
@@ -77,7 +79,7 @@ public class SalesHistoryPanel extends JPanel {
         // 4. FOOTER
         JPanel footer = new JPanel(new BorderLayout());
         footer.setOpaque(false);
-        
+
         totalSalesLabel = new JLabel("Total Sales: RM 0.00");
         totalSalesLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         totalSalesLabel.setForeground(new Color(40, 199, 111));
@@ -91,12 +93,17 @@ public class SalesHistoryPanel extends JPanel {
             @Override
             public void ancestorAdded(AncestorEvent event) {
                 loadSalesData();
+                applySorting(); // Set default sort to Newest Date
                 updateTotalSales();
             }
+
             @Override
-            public void ancestorRemoved(AncestorEvent event) {}
+            public void ancestorRemoved(AncestorEvent event) {
+            }
+
             @Override
-            public void ancestorMoved(AncestorEvent event) {}
+            public void ancestorMoved(AncestorEvent event) {
+            }
         });
 
         loadSalesData();
@@ -104,19 +111,24 @@ public class SalesHistoryPanel extends JPanel {
     }
 
     // =========================================================================
-    //  UI SETUP
+    // UI SETUP
     // =========================================================================
 
     private JScrollPane createModernTable() {
-        String[] columns = {"Date", "Time", "Customer", "Model", "Qty", "Total (RM)", "Method"};
-        
+        String[] columns = { "Date", "Time", "Customer", "Model", "Qty", "Total (RM)", "Method" };
+
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 4) return Integer.class; 
-                if (columnIndex == 5) return Double.class;
+                if (columnIndex == 4)
+                    return Integer.class;
+                if (columnIndex == 5)
+                    return Double.class;
                 return String.class;
             }
         };
@@ -124,7 +136,32 @@ public class SalesHistoryPanel extends JPanel {
         table = new JTable(tableModel);
         sorter = new TableRowSorter<>(tableModel);
         table.setRowSorter(sorter);
+
+        // Custom comparator for Date (Column 0)
         sorter.setComparator(0, Comparator.comparing(String::toString));
+
+        // Custom comparator for Time (Column 1) - Correct AM/PM sorting
+        // (case-insensitive)
+        DateTimeFormatter timeFormat = new DateTimeFormatterBuilder()
+                .parseCaseInsensitive()
+                .appendPattern("h:mm a")
+                .toFormatter(Locale.ENGLISH);
+
+        sorter.setComparator(1, (s1, s2) -> {
+            try {
+                // Remove any leading/trailing spaces and handle mid-string semicolons if they
+                // exist
+                String t1Str = ((String) s1).trim().replace(";", ":");
+                String t2Str = ((String) s2).trim().replace(";", ":");
+
+                LocalTime t1 = LocalTime.parse(t1Str, timeFormat);
+                LocalTime t2 = LocalTime.parse(t2Str, timeFormat);
+                return t1.compareTo(t2);
+            } catch (Exception e) {
+                // Fallback to simpler string comparison if parsing fails
+                return ((String) s1).compareTo((String) s2);
+            }
+        });
 
         // Styling
         table.setRowHeight(45);
@@ -137,14 +174,17 @@ public class SalesHistoryPanel extends JPanel {
         JTableHeader header = table.getTableHeader();
         header.setDefaultRenderer(new DefaultTableCellRenderer() {
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                    boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 setBackground(Color.WHITE);
                 setForeground(new Color(160, 174, 192));
                 setFont(new Font("SansSerif", Font.BOLD, 12));
                 setBorder(new MatteBorder(0, 0, 2, 0, new Color(230, 230, 230)));
-                if (column == 4 || column == 5) setHorizontalAlignment(JLabel.RIGHT);
-                else setHorizontalAlignment(JLabel.LEFT);
+                if (column == 4 || column == 5)
+                    setHorizontalAlignment(JLabel.RIGHT);
+                else
+                    setHorizontalAlignment(JLabel.LEFT);
                 return this;
             }
         });
@@ -152,13 +192,16 @@ public class SalesHistoryPanel extends JPanel {
 
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
-                if (value instanceof Double) value = String.format("%.2f", (Double)value);
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                    boolean hasFocus, int row, int col) {
+                if (value instanceof Double)
+                    value = String.format("%.2f", (Double) value);
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
-                if (!isSelected) setBackground(Color.WHITE);
+                if (!isSelected)
+                    setBackground(Color.WHITE);
                 if (col == 4 || col == 5) {
                     setHorizontalAlignment(JLabel.RIGHT);
-                    setBorder(new EmptyBorder(0, 0, 0, 10)); 
+                    setBorder(new EmptyBorder(0, 0, 0, 10));
                 } else {
                     setHorizontalAlignment(JLabel.LEFT);
                     setBorder(new EmptyBorder(0, 10, 0, 0));
@@ -179,11 +222,12 @@ public class SalesHistoryPanel extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(0, 0, 12, 15);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        
+
         // Row 1
-        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         panel.add(createLabel("Search:"), gbc);
-        
+
         gbc.gridx = 1;
         searchField = new JTextField(12);
         styleTextField(searchField);
@@ -194,7 +238,7 @@ public class SalesHistoryPanel extends JPanel {
         panel.add(createLabel("Method:"), gbc);
 
         gbc.gridx = 3;
-        String[] methods = {"All", "Cash", "Card", "E-Wallet", "Credit Card"};
+        String[] methods = { "All", "Cash", "Card", "E-Wallet", "Credit Card" };
         filterMethodCombo = new JComboBox<>(methods);
         styleCombo(filterMethodCombo);
         filterMethodCombo.addActionListener(e -> applyFilters());
@@ -204,14 +248,16 @@ public class SalesHistoryPanel extends JPanel {
         panel.add(createLabel("Sort By:"), gbc);
 
         gbc.gridx = 5;
-        String[] sortOptions = { "Newest Date", "Oldest Date", "Highest Amount", "Lowest Amount", "Customer (A-Z)", "Customer (Z-A)" };
+        String[] sortOptions = { "Newest Date", "Oldest Date", "Highest Amount", "Lowest Amount", "Customer (A-Z)",
+                "Customer (Z-A)" };
         sortCombo = new JComboBox<>(sortOptions);
         styleCombo(sortCombo);
         sortCombo.addActionListener(e -> applySorting());
         panel.add(sortCombo, gbc);
 
         // Row 2 - CUSTOM DATE PICKERS
-        gbc.gridx = 0; gbc.gridy = 1;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         panel.add(createLabel("From Date:"), gbc);
 
         gbc.gridx = 1;
@@ -237,14 +283,15 @@ public class SalesHistoryPanel extends JPanel {
     }
 
     // =========================================================================
-    //  LOGIC
+    // LOGIC
     // =========================================================================
 
     private void loadSalesData() {
         tableModel.setRowCount(0);
-        DataLoad.allSales = DatabaseHandler.fetchAllSales(); 
+        DataLoad.allSales = DatabaseHandler.fetchAllSales();
         for (Sales s : DataLoad.allSales) {
-            tableModel.addRow(new Object[]{ s.getDate(), s.getTime(), s.getCustomerName(), s.getModel(), s.getQuantity(), s.getSubtotal(), s.getTransactionMethod() });
+            tableModel.addRow(new Object[] { s.getDate(), s.getTime(), s.getCustomerName(), s.getModel(),
+                    s.getQuantity(), s.getSubtotal(), s.getTransactionMethod() });
         }
     }
 
@@ -252,10 +299,12 @@ public class SalesHistoryPanel extends JPanel {
         List<RowFilter<DefaultTableModel, Object>> filters = new ArrayList<>();
 
         String text = searchField.getText().trim();
-        if (!text.isEmpty()) filters.add(RowFilter.regexFilter("(?i)" + text));
+        if (!text.isEmpty())
+            filters.add(RowFilter.regexFilter("(?i)" + text));
 
         String method = (String) filterMethodCombo.getSelectedItem();
-        if (method != null && !"All".equals(method)) filters.add(RowFilter.regexFilter("(?i)" + method, 6));
+        if (method != null && !"All".equals(method))
+            filters.add(RowFilter.regexFilter("(?i)" + method, 6));
 
         // Use Date from Custom Picker
         String fromStr = fromDatePicker.getSelectedDate();
@@ -268,16 +317,21 @@ public class SalesHistoryPanel extends JPanel {
                     try {
                         String rowDateStr = (String) entry.getValue(0);
                         LocalDate rowDate = LocalDate.parse(rowDateStr, dateFormatter);
-                        boolean afterFrom = (fromStr == null) || !rowDate.isBefore(LocalDate.parse(fromStr, dateFormatter));
+                        boolean afterFrom = (fromStr == null)
+                                || !rowDate.isBefore(LocalDate.parse(fromStr, dateFormatter));
                         boolean beforeTo = (toStr == null) || !rowDate.isAfter(LocalDate.parse(toStr, dateFormatter));
                         return afterFrom && beforeTo;
-                    } catch (DateTimeParseException e) { return true; }
+                    } catch (DateTimeParseException e) {
+                        return true;
+                    }
                 }
             });
         }
 
-        if (filters.isEmpty()) sorter.setRowFilter(null);
-        else sorter.setRowFilter(RowFilter.andFilter(filters));
+        if (filters.isEmpty())
+            sorter.setRowFilter(null);
+        else
+            sorter.setRowFilter(RowFilter.andFilter(filters));
 
         updateTotalSales();
     }
@@ -286,24 +340,42 @@ public class SalesHistoryPanel extends JPanel {
         String selected = (String) sortCombo.getSelectedItem();
         List<RowSorter.SortKey> keys = new ArrayList<>();
         switch (selected) {
-            case "Newest Date": keys.add(new RowSorter.SortKey(0, SortOrder.DESCENDING)); break;
-            case "Oldest Date": keys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING)); break;
-            case "Highest Amount": keys.add(new RowSorter.SortKey(5, SortOrder.DESCENDING)); break;
-            case "Lowest Amount": keys.add(new RowSorter.SortKey(5, SortOrder.ASCENDING)); break;
-            case "Customer (A-Z)": keys.add(new RowSorter.SortKey(2, SortOrder.ASCENDING)); break;
-            case "Customer (Z-A)": keys.add(new RowSorter.SortKey(2, SortOrder.DESCENDING)); break;
+            case "Newest Date":
+                keys.add(new RowSorter.SortKey(0, SortOrder.DESCENDING));
+                keys.add(new RowSorter.SortKey(1, SortOrder.DESCENDING));
+                break;
+            case "Oldest Date":
+                keys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+                keys.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
+                break;
+            case "Highest Amount":
+                keys.add(new RowSorter.SortKey(5, SortOrder.DESCENDING));
+                break;
+            case "Lowest Amount":
+                keys.add(new RowSorter.SortKey(5, SortOrder.ASCENDING));
+                break;
+            case "Customer (A-Z)":
+                keys.add(new RowSorter.SortKey(2, SortOrder.ASCENDING));
+                break;
+            case "Customer (Z-A)":
+                keys.add(new RowSorter.SortKey(2, SortOrder.DESCENDING));
+                break;
         }
         sorter.setSortKeys(keys);
     }
 
     private void updateTotalSales() {
         double total = 0.0;
-        int rowCount = table.getRowCount(); 
+        int rowCount = table.getRowCount();
         for (int i = 0; i < rowCount; i++) {
             Object value = table.getValueAt(i, 5);
-            if (value instanceof Double) total += (Double) value;
+            if (value instanceof Double)
+                total += (Double) value;
             else if (value instanceof String) {
-                try { total += Double.parseDouble((String) value); } catch(Exception e) {}
+                try {
+                    total += Double.parseDouble((String) value);
+                } catch (Exception e) {
+                }
             }
         }
         totalSalesLabel.setText(String.format("Total Sales: RM %.2f", total));
@@ -320,7 +392,7 @@ public class SalesHistoryPanel extends JPanel {
     }
 
     // =========================================================================
-    //  PURE JAVA CUSTOM DATE PICKER COMPONENT
+    // PURE JAVA CUSTOM DATE PICKER COMPONENT
     // =========================================================================
 
     private class ModernDatePicker extends JPanel {
@@ -365,19 +437,22 @@ public class SalesHistoryPanel extends JPanel {
 
             // -- Calendar Logic --
             YearMonth currentYM = YearMonth.now();
-            if(!dateField.getText().isEmpty()) {
-                try { currentYM = YearMonth.from(LocalDate.parse(dateField.getText(), fmt)); } catch(Exception ignored){}
+            if (!dateField.getText().isEmpty()) {
+                try {
+                    currentYM = YearMonth.from(LocalDate.parse(dateField.getText(), fmt));
+                } catch (Exception ignored) {
+                }
             }
-            final YearMonth[] viewYM = {currentYM};
+            final YearMonth[] viewYM = { currentYM };
 
             JPanel header = new JPanel(new BorderLayout());
             header.setBackground(new Color(240, 248, 255));
             JLabel monthLabel = new JLabel(viewYM[0].getMonth() + " " + viewYM[0].getYear(), SwingConstants.CENTER);
             monthLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
-            
+
             JButton prev = createNavBtn("<");
             JButton next = createNavBtn(">");
-            
+
             JPanel grid = new JPanel(new GridLayout(0, 7, 2, 2));
             grid.setBackground(Color.WHITE);
             grid.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -385,9 +460,9 @@ public class SalesHistoryPanel extends JPanel {
             Runnable refreshGrid = () -> {
                 grid.removeAll();
                 monthLabel.setText(viewYM[0].getMonth().toString() + " " + viewYM[0].getYear());
-                
-                String[] days = {"Su","Mo","Tu","We","Th","Fr","Sa"};
-                for(String d : days) {
+
+                String[] days = { "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa" };
+                for (String d : days) {
                     JLabel l = new JLabel(d, SwingConstants.CENTER);
                     l.setFont(new Font("SansSerif", Font.BOLD, 12));
                     l.setForeground(Color.GRAY);
@@ -395,21 +470,27 @@ public class SalesHistoryPanel extends JPanel {
                 }
 
                 LocalDate firstOfMonth = viewYM[0].atDay(1);
-                int emptySlots = firstOfMonth.getDayOfWeek().getValue() % 7; 
+                int emptySlots = firstOfMonth.getDayOfWeek().getValue() % 7;
                 int daysInMonth = viewYM[0].lengthOfMonth();
 
-                for(int i=0; i<emptySlots; i++) grid.add(new JLabel(""));
+                for (int i = 0; i < emptySlots; i++)
+                    grid.add(new JLabel(""));
 
-                for(int i=1; i<=daysInMonth; i++) {
+                for (int i = 1; i <= daysInMonth; i++) {
                     final int day = i;
                     JButton dayBtn = new JButton(String.valueOf(day));
                     dayBtn.setFocusPainted(false);
                     dayBtn.setBackground(Color.WHITE);
-                    dayBtn.setBorder(new LineBorder(new Color(230,230,230)));
+                    dayBtn.setBorder(new LineBorder(new Color(230, 230, 230)));
                     dayBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
                     dayBtn.addMouseListener(new MouseAdapter() {
-                        public void mouseEntered(MouseEvent e) { dayBtn.setBackground(new Color(230,240,255)); }
-                        public void mouseExited(MouseEvent e) { dayBtn.setBackground(Color.WHITE); }
+                        public void mouseEntered(MouseEvent e) {
+                            dayBtn.setBackground(new Color(230, 240, 255));
+                        }
+
+                        public void mouseExited(MouseEvent e) {
+                            dayBtn.setBackground(Color.WHITE);
+                        }
                     });
                     dayBtn.addActionListener(ev -> {
                         LocalDate selected = viewYM[0].atDay(day);
@@ -423,8 +504,14 @@ public class SalesHistoryPanel extends JPanel {
                 grid.repaint();
             };
 
-            prev.addActionListener(e -> { viewYM[0] = viewYM[0].minusMonths(1); refreshGrid.run(); });
-            next.addActionListener(e -> { viewYM[0] = viewYM[0].plusMonths(1); refreshGrid.run(); });
+            prev.addActionListener(e -> {
+                viewYM[0] = viewYM[0].minusMonths(1);
+                refreshGrid.run();
+            });
+            next.addActionListener(e -> {
+                viewYM[0] = viewYM[0].plusMonths(1);
+                refreshGrid.run();
+            });
 
             header.add(prev, BorderLayout.WEST);
             header.add(monthLabel, BorderLayout.CENTER);
@@ -432,10 +519,12 @@ public class SalesHistoryPanel extends JPanel {
 
             mainPanel.add(header, BorderLayout.NORTH);
             mainPanel.add(grid, BorderLayout.CENTER);
-            
+
             // Close if clicked outside (simple simulation)
             dialog.addWindowFocusListener(new WindowAdapter() {
-                public void windowLostFocus(WindowEvent e) { dialog.dispose(); }
+                public void windowLostFocus(WindowEvent e) {
+                    dialog.dispose();
+                }
             });
 
             refreshGrid.run();
@@ -453,21 +542,41 @@ public class SalesHistoryPanel extends JPanel {
             return b;
         }
 
-        public String getSelectedDate() { return dateField.getText().isEmpty() ? null : dateField.getText(); }
-        public void clear() { dateField.setText(""); }
-        public void addDateChangeListener(ActionListener l) { listeners.add(l); }
-        private void fireChange() { for(ActionListener l : listeners) l.actionPerformed(null); }
+        public String getSelectedDate() {
+            return dateField.getText().isEmpty() ? null : dateField.getText();
+        }
+
+        public void clear() {
+            dateField.setText("");
+        }
+
+        public void addDateChangeListener(ActionListener l) {
+            listeners.add(l);
+        }
+
+        private void fireChange() {
+            for (ActionListener l : listeners)
+                l.actionPerformed(null);
+        }
     }
 
     // =========================================================================
-    //  UTILITIES
+    // UTILITIES
     // =========================================================================
 
     private void addLiveListener(JTextField field) {
         field.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { applyFilters(); }
-            public void removeUpdate(DocumentEvent e) { applyFilters(); }
-            public void changedUpdate(DocumentEvent e) { applyFilters(); }
+            public void insertUpdate(DocumentEvent e) {
+                applyFilters();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                applyFilters();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                applyFilters();
+            }
         });
     }
 
@@ -482,7 +591,7 @@ public class SalesHistoryPanel extends JPanel {
         txt.setPreferredSize(new Dimension(150, 35));
         txt.setFont(new Font("SansSerif", Font.PLAIN, 13));
         txt.setBorder(BorderFactory.createCompoundBorder(
-            new LineBorder(new Color(200, 200, 200)), new EmptyBorder(5, 8, 5, 8)));
+                new LineBorder(new Color(200, 200, 200)), new EmptyBorder(5, 8, 5, 8)));
     }
 
     private void styleCombo(JComboBox box) {
@@ -490,7 +599,7 @@ public class SalesHistoryPanel extends JPanel {
         box.setFont(new Font("SansSerif", Font.PLAIN, 13));
         box.setPreferredSize(new Dimension(120, 35));
     }
-    
+
     private void styleSecondaryButton(JButton btn) {
         btn.setBackground(Color.WHITE);
         btn.setForeground(Color.GRAY);

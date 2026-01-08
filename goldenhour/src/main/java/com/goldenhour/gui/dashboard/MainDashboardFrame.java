@@ -6,6 +6,7 @@ import com.goldenhour.gui.auth.LoginFrame;
 import com.goldenhour.gui.common.BackgroundPanel;
 import com.goldenhour.gui.common.SidebarButton;
 import com.goldenhour.gui.hr.AttendancePanel;
+import com.goldenhour.gui.hr.EmployeePerformancePanel;
 import com.goldenhour.gui.inventory.StockOperationsPanel;
 import com.goldenhour.gui.inventory.StockPanel;
 import com.goldenhour.gui.pos.POSPanel;
@@ -142,6 +143,13 @@ public class MainDashboardFrame extends JFrame {
         sidebar.add(createNavButton("Point of Sale", "POS", "🛒", false));
         sidebar.add(createNavButton("Sales History", "SALES_HIST", "📜", false));
 
+        // === NEW: MANAGER-ONLY EMPLOYEE PERFORMANCE ===
+        if (AuthService.getCurrentUser() != null &&
+                "Manager".equalsIgnoreCase(AuthService.getCurrentUser().getRole())) {
+            sidebar.add(createNavButton("Employee Performance", "EMP_PERFORMANCE", "📊", false));
+        }
+        // ==============================================
+
         // -- Push Logout to Bottom --
         sidebar.add(Box.createVerticalGlue());
 
@@ -173,6 +181,12 @@ public class MainDashboardFrame extends JFrame {
         mainContentPanel.add(new POSPanel(), "POS");
         mainContentPanel.add(new StockOperationsPanel(), "STOCK_OPS");
         mainContentPanel.add(new SalesHistoryPanel(), "SALES_HIST");
+
+        // === ADD THE NEW EMPLOYEE PERFORMANCE PANEL ===
+        if (AuthService.getCurrentUser() != null &&
+                "Manager".equalsIgnoreCase(AuthService.getCurrentUser().getRole())) {
+            mainContentPanel.add(new EmployeePerformancePanel(), "EMP_PERFORMANCE");
+        }
         // === ADD THE NEW PANEL TO CARD LAYOUT ===
         databaseViewerPanel = new DatabaseViewerPanel(() -> {
             // Navigation callback to switch to Register Employee panel
@@ -250,7 +264,8 @@ public class MainDashboardFrame extends JFrame {
                     (cardName.equals("STOCK_OPS") && btn.getText().equals("Stock Operations")) ||
                     (cardName.equals("SALES") && btn.getText().equals("Sales")) ||
                     (cardName.equals("REGISTER_EMP") && btn.getText().equals("Register Employee")) ||
-                    (cardName.equals("DB_VIEWER") && btn.getText().equals("Manage Database"))) {
+                    (cardName.equals("DB_VIEWER") && btn.getText().equals("Manage Database")) ||
+                    (cardName.equals("EMP_PERFORMANCE") && btn.getText().equals("Employee Performance"))) {
                 btn.setActive(true);
             } else {
                 btn.setActive(false);

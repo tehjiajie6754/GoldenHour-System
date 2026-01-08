@@ -594,7 +594,7 @@ public class SalesHistoryPanel extends JPanel {
                 new LineBorder(new Color(200, 200, 200)), new EmptyBorder(5, 8, 5, 8)));
     }
 
-    private void styleCombo(JComboBox box) {
+    private void styleCombo(JComboBox<String> box) {
         box.setBackground(Color.WHITE);
         box.setFont(new Font("SansSerif", Font.PLAIN, 13));
         box.setPreferredSize(new Dimension(120, 35));

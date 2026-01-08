@@ -21,6 +21,7 @@ import java.awt.Toolkit;
 import java.awt.Image;
 import java.awt.TrayIcon.MessageType;
 import java.awt.AWTException;
+import javax.swing.JOptionPane;
 
 /**
  * AutoEmail - Daily Sales Report Email System
@@ -67,28 +68,41 @@ public class AutoEmail {
      */
     private static final String SENDER_EMAIL = "25006805@siswa.um.edu.my";
     //private static final String SENDER_EMAIL = "25006805@siswa.um.edu.my";
-    private static final String SENDER_PASSWORD = "xnyd pxyb xrfg rjsw"; // Gmail app password (not login password)
+    private static final String SENDER_PASSWORD = "tuun okem pgdl rovr"; // Gmail app password (not login password)
     private static final String SMTP_HOST = "smtp.gmail.com";
     private static final String SMTP_PORT = "587";
     private static final int TARGET_HOUR = 22;
-    private static final int TARGET_MIN = 15;
+    private static final int TARGET_MIN = 00;
+    // Flag to track if manual send has been done today
+    private static boolean manualSendDone = false;
 
     /**
      * Sends the daily sales report email.
      * Called automatically every day at scheduled time, or manually for testing.
      */
     public static void sendDailyReport() {
+        sendDailyReport(false);
+    }
+
+    /**
+     * Sends the daily sales report email with option to show popup notification.
+     * @param showPopup Whether to show a popup notification after sending
+     */
+    public static void sendDailyReport(boolean showPopup) {
         // Get today's sales data (null parameters = use current date and all outlets)
         DailySalesSummary todayStats = SalesCalculator.getSummary(null, null);
 
-        String recipient = "25006739@siswa.um.edu.my";
+        String recipient = "25006805@siswa.um.edu.my";
         String date = TimeUtils.getDate();
         String filePath = "data/receipts/sales_" + date + ".txt";
         double totalSales = todayStats.getGrandTotal();
 
         // Send the email
         System.out.println("Attempting to send End-of-Day report...");
-        sendEmail(recipient, filePath, totalSales, date);
+        sendEmail(recipient, filePath, totalSales, date, showPopup);
+
+        // Mark as sent to prevent automatic send
+        manualSendDone = true;
     }
 
     /**
@@ -107,7 +121,12 @@ public class AutoEmail {
             @Override
             public void run() {
                 try {
-                    sendDailyReport();
+                    if (!manualSendDone) {
+                        sendDailyReport();
+                    } else {
+                        // Reset flag for next day
+                        manualSendDone = false;
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -136,8 +155,9 @@ public class AutoEmail {
      * @param attachmentPath Path to file to attach
      * @param totalSales Total sales amount for email body
      * @param date Date string for subject and content
+     * @param showPopup Whether to show a popup notification after sending
      */
-    public static void sendEmail(String toAddress, String attachmentPath, double totalSales, String date) {
+    public static void sendEmail(String toAddress, String attachmentPath, double totalSales, String date, boolean showPopup) {
         // 1. Setup Mail Server Properties
         Properties properties = new Properties();
         properties.put("mail.smtp.auth", "true");
@@ -207,6 +227,12 @@ public class AutoEmail {
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
+            }
+
+            // Show popup notification if requested (for manual sends)
+            if (showPopup) {
+                JOptionPane.showMessageDialog(null, "Daily sales report has been sent successfully to Headquarters!",
+                    "Report Sent", JOptionPane.INFORMATION_MESSAGE);
             }
 
             System.out.println("Email sent successfully to " + toAddress);

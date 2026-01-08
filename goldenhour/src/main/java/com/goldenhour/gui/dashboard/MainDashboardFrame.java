@@ -1,6 +1,7 @@
 package com.goldenhour.gui.dashboard;
 
 import com.goldenhour.gui.admin.DatabaseViewerPanel;
+import com.goldenhour.gui.admin.DailyReportReviewPanel;
 import com.goldenhour.gui.admin.RegisterEmployeePanel;
 import com.goldenhour.gui.auth.LoginFrame;
 import com.goldenhour.gui.common.BackgroundPanel;
@@ -10,6 +11,7 @@ import com.goldenhour.gui.inventory.StockOperationsPanel;
 import com.goldenhour.gui.inventory.StockPanel;
 import com.goldenhour.gui.pos.POSPanel;
 import com.goldenhour.gui.pos.SalesHistoryPanel;
+import com.goldenhour.service.autoemail.AutoEmail;
 import com.goldenhour.service.loginregister.AuthService;
 
 import javax.swing.*;
@@ -55,6 +57,8 @@ public class MainDashboardFrame extends JFrame {
     // Panel references for inter-panel communication
     private DatabaseViewerPanel databaseViewerPanel; // Reference for data synchronization
     private HomePanel homePanel; // Reference for dashboard refresh
+    private DailyReportReviewPanel dailyReportReviewPanel; // Reference for report refresh
+    private SidebarButton sendReportBtn; // Reference to reset active state
 
     /**
      * Constructor - Initializes the main dashboard frame with sidebar navigation
@@ -133,6 +137,7 @@ public class MainDashboardFrame extends JFrame {
             // Add the new button
             sidebar.add(createNavButton("Register Employee", "REGISTER_EMP", "👤", false));
             sidebar.add(createNavButton("Manage Database", "DB_VIEWER", "🗄️", false));
+            sidebar.add(createNavButton("Send Daily Report", "SEND_REPORT", "📧", false));
         }
         // =================================
 
@@ -182,6 +187,11 @@ public class MainDashboardFrame extends JFrame {
         });
         mainContentPanel.add(new RegisterEmployeePanel(databaseViewerPanel), "REGISTER_EMP");
         mainContentPanel.add(databaseViewerPanel, "DB_VIEWER");
+        dailyReportReviewPanel = new DailyReportReviewPanel(() -> {
+            cardLayout.show(mainContentPanel, "HOME");
+            updateSidebarActive("HOME");
+        });
+        mainContentPanel.add(dailyReportReviewPanel, "SEND_REPORT");
 
         add(sidebar, BorderLayout.WEST);
         add(mainContentPanel, BorderLayout.CENTER);
@@ -212,12 +222,36 @@ public class MainDashboardFrame extends JFrame {
         btn.setAlignmentX(Component.LEFT_ALIGNMENT); // Critical for BoxLayout
         btn.setActive(active);
 
-        navButtons.add(btn); // Add to list so we can reset them later
+        // Only add to navButtons if it's a navigation button, not an action button
+        if (!"SEND_REPORT".equals(cardName)) {
+            navButtons.add(btn); // Add to list so we can reset them later
+        } else {
+            sendReportBtn = btn; // Keep reference for resetting
+        }
 
         btn.addActionListener(e -> {
+            if ("SEND_REPORT".equals(cardName)) {
+                // Switch to review panel
+                cardLayout.show(mainContentPanel, cardName);
+                // Set button active
+                for (SidebarButton b : navButtons) {
+                    b.setActive(false);
+                }
+                btn.setActive(true);
+                // Refresh the data
+                if (dailyReportReviewPanel != null) {
+                    dailyReportReviewPanel.refreshData();
+                }
+                return;
+            }
+
             // Reset all navigation buttons to inactive state
             for (SidebarButton b : navButtons) {
                 b.setActive(false);
+            }
+            // Also reset the send report button
+            if (sendReportBtn != null) {
+                sendReportBtn.setActive(false);
             }
             // Set clicked button to active state
             btn.setActive(true);
@@ -250,7 +284,8 @@ public class MainDashboardFrame extends JFrame {
                     (cardName.equals("STOCK_OPS") && btn.getText().equals("Stock Operations")) ||
                     (cardName.equals("SALES") && btn.getText().equals("Sales")) ||
                     (cardName.equals("REGISTER_EMP") && btn.getText().equals("Register Employee")) ||
-                    (cardName.equals("DB_VIEWER") && btn.getText().equals("Manage Database"))) {
+                    (cardName.equals("DB_VIEWER") && btn.getText().equals("Manage Database")) ||
+                    (cardName.equals("SEND_REPORT") && btn.getText().equals("Send Daily Report"))) {
                 btn.setActive(true);
             } else {
                 btn.setActive(false);

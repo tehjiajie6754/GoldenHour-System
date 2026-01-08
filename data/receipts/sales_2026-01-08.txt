@@ -58,3 +58,33 @@ Method: Cash
 Employee: Hong Han
 
 --------------------------------------------------
+=== Sales Receipt ===
+Date: 2026-01-08
+Time: 04:19 pm
+Outlet: C60
+Customer: JJ Lin
+----------------------------------
+ITEMS PURCHASED:
+SW2400-1           x 1   RM   789.00
+----------------------------------
+Total Items: 1
+Grand Total: RM 789.00
+Method: Cash
+Employee: Test Manager
+
+--------------------------------------------------
+=== Sales Receipt ===
+Date: 2026-01-08
+Time: 04:32 pm
+Outlet: C60
+Customer: Jia Jie
+----------------------------------
+ITEMS PURCHASED:
+DW2400-1           x 1   RM   599.00
+----------------------------------
+Total Items: 1
+Grand Total: RM 599.00
+Method: Cash
+Employee: Test Manager
+
+--------------------------------------------------

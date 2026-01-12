@@ -244,14 +244,15 @@ public class DatabaseViewerPanel extends BackgroundPanel {
                     // 1. Fetch Fresh
                     DataLoad.allAttendance = DatabaseHandler.fetchAllAttendance();
                     
-                    tableModel.setColumnIdentifiers(new String[]{"Emp ID", "Name", "Date", "Clock In", "Clock Out"});
+                    tableModel.setColumnIdentifiers(new String[]{"Emp ID", "Name", "Date", "Clock In", "Clock Out", "Outlet"});
                     for (Attendance a : DataLoad.allAttendance) {
                         tableModel.addRow(new Object[]{
                             a.getEmployeeId(), 
                             a.getEmployeeName(), // Changed from getName() to getEmployeeName() if needed
                             a.getDate(), 
                             a.getClockInTime(), 
-                            a.getClockOutTime()
+                            a.getClockOutTime(),
+                            (a.getOutletCode() != null ? a.getOutletCode() : "-")
                         });
                     }
                     break;
@@ -388,12 +389,22 @@ public class DatabaseViewerPanel extends BackgroundPanel {
                 case "Attendance":
                     DataLoad.allAttendance.clear();
                     for (int i = 0; i < tableModel.getRowCount(); i++) {
-                        // 1. Create Base Object
+                        // Get outlet code (default to first outlet if missing)
+                        String outletCode = "C60"; // Default
+                        if (tableModel.getColumnCount() > 5) {
+                            Object outletObj = tableModel.getValueAt(i, 5);
+                            if (outletObj != null && !outletObj.toString().isEmpty()) {
+                                outletCode = outletObj.toString();
+                            }
+                        }
+                        
+                        // 1. Create Base Object with outlet
                         Attendance a = new Attendance(
                             (String)tableModel.getValueAt(i,0), // ID
                             (String)tableModel.getValueAt(i,1), // Name
                             (String)tableModel.getValueAt(i,2), // Date
-                            (String)tableModel.getValueAt(i,3)  // Clock In
+                            (String)tableModel.getValueAt(i,3), // Clock In
+                            outletCode                          // Outlet
                         );
                         
                         // 2. FIX: Capture "Clock Out" (Column 4) which was missing!

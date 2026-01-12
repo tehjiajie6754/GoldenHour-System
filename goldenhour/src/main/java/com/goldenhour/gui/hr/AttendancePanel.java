@@ -73,7 +73,7 @@ public class AttendancePanel extends BackgroundPanel { // Inherits background im
         tableCard.setLayout(new BorderLayout());
         
         // Table Data
-        String[] cols = {"DATE", "CLOCK IN", "CLOCK OUT", "TOTAL HOURS", "STATUS"};
+        String[] cols = {"DATE", "OUTLET", "CLOCK IN", "CLOCK OUT", "TOTAL HOURS", "STATUS"};
         model = new DefaultTableModel(cols, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -117,7 +117,8 @@ public class AttendancePanel extends BackgroundPanel { // Inherits background im
         table.getColumnModel().getColumn(1).setCellRenderer(centerRender);
         table.getColumnModel().getColumn(2).setCellRenderer(centerRender);
         table.getColumnModel().getColumn(3).setCellRenderer(centerRender);
-        table.getColumnModel().getColumn(4).setCellRenderer(new StatusBadgeRenderer());
+        table.getColumnModel().getColumn(4).setCellRenderer(centerRender);
+        table.getColumnModel().getColumn(5).setCellRenderer(new StatusBadgeRenderer());
 
         // Scroll Pane Transparency
         JScrollPane scroll = new JScrollPane(table);
@@ -228,6 +229,7 @@ public class AttendancePanel extends BackgroundPanel { // Inherits background im
             String status = (a.getClockOutTime() == null || a.getClockOutTime().isEmpty()) ? "Active" : "Completed";
             model.addRow(new Object[]{
                 a.getDate(),
+                (a.getOutletCode() != null ? a.getOutletCode() : "-"),
                 a.getClockInTime(),
                 (a.getClockOutTime() == null ? "-" : a.getClockOutTime()),
                 String.format("%.1f hrs", a.getHoursWorked()),
@@ -252,12 +254,36 @@ public class AttendancePanel extends BackgroundPanel { // Inherits background im
     }
 
     private void performClockIn() {
-        // Simple logic for brevity, matches previous
-        Attendance newRecord = new Attendance(AuthService.getCurrentUser().getId(), AuthService.getCurrentUser().getName(), TimeUtils.getDate(), TimeUtils.getTime());
+        // Prompt user to select outlet
+        String[] outletOptions = DataLoad.allOutlets.stream()
+            .map(o -> o.getOutletCode() + " - " + o.getOutletName())
+            .toArray(String[]::new);
+        
+        String selection = (String) JOptionPane.showInputDialog(
+            this,
+            "Select your outlet:",
+            "Clock In - Select Outlet",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            outletOptions,
+            outletOptions[0]
+        );
+        
+        if (selection == null) return; // User cancelled
+        
+        String outletCode = selection.split(" - ")[0];
+        
+        Attendance newRecord = new Attendance(
+            AuthService.getCurrentUser().getId(), 
+            AuthService.getCurrentUser().getName(), 
+            TimeUtils.getDate(), 
+            TimeUtils.getTime(),
+            outletCode
+        );
         DataLoad.allAttendance.add(newRecord);
         DatabaseHandler.saveAttendance(newRecord);
         CSVHandler.writeAttendance(DataLoad.allAttendance);
-        JOptionPane.showMessageDialog(this, "Clocked In Successfully!");
+        JOptionPane.showMessageDialog(this, "Clocked In Successfully at " + selection + "!");
         refreshData();
     }
 

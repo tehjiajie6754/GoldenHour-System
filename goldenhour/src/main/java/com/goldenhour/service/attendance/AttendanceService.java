@@ -47,7 +47,7 @@ public class AttendanceService {
 
         String outletName = getOutletName(outletCode);
 
-        Attendance newRecord = new Attendance(emp.getId(), emp.getName(), today, clockInTime);
+        Attendance newRecord = new Attendance(emp.getId(), emp.getName(), today, clockInTime, outletCode);
         records.add(newRecord);
         DatabaseHandler.saveAttendance(newRecord);
         CSVHandler.writeAttendance(records);
@@ -102,10 +102,8 @@ public class AttendanceService {
         
         CSVHandler.writeAttendance(records);
 
-        // Select outlet for consistency
-        System.out.print("Select outlet you clocked out from: ");
-        String outletCode = selectOutlet();
-        if (outletCode == null) outletCode = "C60"; // Default fallback
+        // Use outlet from clock-in record
+        String outletCode = todayRecord.getOutletCode() != null ? todayRecord.getOutletCode() : "C60";
         String outletName = getOutletName(outletCode);
 
         // Display output as per requirement

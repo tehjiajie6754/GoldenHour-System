@@ -1,0 +1,23 @@
+=== Sales Receipt ===
+Date: 2026-01-18
+Time: 07:56 pm
+Outlet: C60
+Customer: JJ teh
+----------------------------------
+ITEMS PURCHASED:
+SW2400-3           x 5   RM  3845.00
+SW2500-3           x 2   RM  1690.00
+SW2500-2           x 1   RM   845.00
+SW2500-1           x 2   RM  1690.00
+SW2400-4           x 1   RM   729.00
+SW2500-4           x 1   RM   825.00
+DW2300-3           x 1   RM   349.00
+DW2400-3           x 1   RM   569.00
+DW2300-4           x 1   RM   349.00
+----------------------------------
+Total Items: 9
+Grand Total: RM 10891.00
+Method: Cash
+Employee: Test Manager
+
+--------------------------------------------------

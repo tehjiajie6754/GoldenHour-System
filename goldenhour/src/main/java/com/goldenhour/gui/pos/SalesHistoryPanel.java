@@ -210,6 +210,21 @@ public class SalesHistoryPanel extends JPanel {
             }
         });
 
+        table.setDefaultRenderer(Double.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                    boolean hasFocus, int row, int col) {
+                if (value instanceof Double)
+                    value = String.format("%.2f", (Double) value);
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+                if (!isSelected)
+                    setBackground(Color.WHITE);
+                setHorizontalAlignment(JLabel.RIGHT);
+                setBorder(new EmptyBorder(0, 0, 0, 10));
+                return this;
+            }
+        });
+
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(new LineBorder(new Color(230, 230, 230)));
         scroll.getViewport().setBackground(Color.WHITE);

@@ -13,6 +13,12 @@ public class RegistrationService {
 
         List<Employee> employees = DataLoad.allEmployees;
 
+        // Validate role
+        if (!role.equals("Full-time") && !role.equals("Part-time") && !role.equals("Manager")) {
+            System.out.println("\u001B[31mError: Invalid role. Role must be 'Full-time', 'Part-time', or 'Manager'.\u001B[0m");
+            return;
+        }
+
         for (Employee e : employees) {
             if (e.getId().equals(id)) {
                 System.out.println("Error: Employee ID already exists!");

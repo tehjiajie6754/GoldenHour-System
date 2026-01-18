@@ -1,6 +1,7 @@
 package com.goldenhour.service.salessys;
 
 import com.goldenhour.categories.Sales;
+import com.goldenhour.categories.Model;
 import com.goldenhour.dataload.DataLoad;
 import com.goldenhour.storage.CSVHandler;
 import com.goldenhour.storage.DatabaseHandler;
@@ -8,6 +9,26 @@ import com.goldenhour.storage.DatabaseHandler;
 import java.util.Scanner;
 
 public class EditSales {
+
+    /**
+     * Helper method to get the unit price of a model.
+     */
+    private double getModelPrice(String modelCode) {
+        return DataLoad.allModels.stream()
+                .filter(m -> m.getModelCode().equalsIgnoreCase(modelCode))
+                .map(Model::getPrice)
+                .findFirst()
+                .orElse(0.0);
+    }
+
+    /**
+     * Helper method to recalculate total price based on quantity and model price.
+     */
+    private void recalculateTotal(Sales sale) {
+        double unitPrice = getModelPrice(sale.getModel());
+        double newTotal = unitPrice * sale.getQuantity();
+        sale.setSubtotal(newTotal);
+    }
 
     public void editSales(Scanner sc) {
 
@@ -61,15 +82,30 @@ public class EditSales {
                     break;
                 case "2":
                     System.out.print("New Model: ");
-                    targetSale.setModel(sc.nextLine().trim());
+                    String newModel = sc.nextLine().trim();
+                    double newPrice = getModelPrice(newModel);
+                    if (newPrice == 0.0) {
+                        System.out.println("Model not found. Changes cancelled.");
+                        return;
+                    }
+                    targetSale.setModel(newModel);
+                    // Automatically recalculate total with new model's price
+                    recalculateTotal(targetSale);
+                    System.out.println("Model updated. Total price recalculated: RM" + String.format("%.2f", targetSale.getSubtotal()));
                     changed = true;
-                    // Note: Ideally, you should update stock counts here too!
                     break;
                 case "3":
                     System.out.print("New Quantity: ");
-                    targetSale.setQuantity(Integer.parseInt(sc.nextLine().trim()));
+                    int newQty = Integer.parseInt(sc.nextLine().trim());
+                    if (newQty <= 0) {
+                        System.out.println("Quantity must be positive. Changes cancelled.");
+                        return;
+                    }
+                    targetSale.setQuantity(newQty);
+                    // Automatically recalculate total with new quantity
+                    recalculateTotal(targetSale);
+                    System.out.println("Quantity updated. Total price recalculated: RM" + String.format("%.2f", targetSale.getSubtotal()));
                     changed = true;
-                    // Note: Stock update needed here too.
                     break;
                 case "4":
                     System.out.print("New Total Price (RM): ");

@@ -42,13 +42,15 @@ public class SalesService {
         }
 
         if (todayAttendance == null){
-            System.out.println("\u001B[31mError: You must sign attendance first before performing stock count.\u001B[0m");
+            System.out.println("\u001B[31mError: You must sign attendance first before recording a sale.\u001B[0m");
+            System.out.println("Please clock in at your outlet to continue.");
+            return;
         }
         
         // Check if user has already clocked out
         if (todayAttendance.getClockOutTime() != null && !todayAttendance.getClockOutTime().isEmpty()) {
             System.out.println("\u001B[31mError: You have already clocked out today.\u001B[0m");
-            System.out.println("Stock count can only be performed during your shift.");
+            System.out.println("Sales can only be recorded during your shift.");
             return;
         }
 

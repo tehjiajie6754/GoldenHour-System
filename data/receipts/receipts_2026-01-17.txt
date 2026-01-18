@@ -1,0 +1,10 @@
+=== Stock Out ===
+Date: 2026-01-17
+Time: 03:12 PM
+From: C60 (Kuala Lumpur City Centre)
+To: C61 (MidValley)
+Models:
+- SW2400-3 (Quantity: 5)
+Total Quantity: 5
+Employee in Charge: Tan Guan Han
+--------------------------------------------------

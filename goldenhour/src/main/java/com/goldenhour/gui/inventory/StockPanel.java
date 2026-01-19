@@ -5,6 +5,7 @@ import com.goldenhour.categories.Outlet;
 import com.goldenhour.gui.common.BackgroundPanel;
 import com.goldenhour.gui.common.Card;
 import com.goldenhour.storage.DatabaseHandler;
+import com.goldenhour.storage.CSVHandler;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -128,6 +129,37 @@ public class StockPanel extends BackgroundPanel {
         table.getColumnModel().getColumn(0).setCellRenderer(new ProductRenderer()); 
         table.getColumnModel().getColumn(3).setCellRenderer(new StockStatusRenderer()); 
         table.getColumnModel().getColumn(4).setCellRenderer(new ActionRenderer()); 
+
+        // Add mouse listener for edit/delete actions
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                int row = table.rowAtPoint(e.getPoint());
+                int col = table.columnAtPoint(e.getPoint());
+                
+                if (row >= 0 && col == 4) { // ACTION column
+                    // Get the product data
+                    String productName = (String) table.getValueAt(row, 0);
+                    String selectedOutlet = (String) outletCombo.getSelectedItem();
+                    
+                    // Find the model
+                    Model m = com.goldenhour.dataload.DataLoad.allModels.stream()
+                        .filter(model -> model.getModelCode().equalsIgnoreCase(productName))
+                        .findFirst()
+                        .orElse(null);
+                    
+                    if (m == null) return;
+                    
+                    // Check which button was clicked based on position
+                    int relX = e.getX() - table.getCellRect(row, col, false).x;
+                    
+                    if (relX < 30) { // Edit button (pencil icon)
+                        showEditStockDialog(m, selectedOutlet);
+                    } else { // Delete button (trash icon)
+                        showDeleteConfirmation(m, selectedOutlet);
+                    }
+                }
+            }
+        });
 
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createEmptyBorder());
@@ -314,6 +346,129 @@ public class StockPanel extends BackgroundPanel {
             
             p.add(lbl);
             return p;
+        }
+    }
+
+    // --- EDIT STOCK DIALOG ---
+    private void showEditStockDialog(Model model, String outlet) {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Edit Stock", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(400, 250);
+        dialog.setLocationRelativeTo(SwingUtilities.getWindowAncestor(this));
+        
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        
+        // Product name
+        JPanel namePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        namePanel.setOpaque(false);
+        namePanel.add(new JLabel("Product:"));
+        JLabel nameLabel = new JLabel(model.getModelCode());
+        nameLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
+        namePanel.add(nameLabel);
+        panel.add(namePanel);
+        panel.add(Box.createVerticalStrut(10));
+        
+        // Outlet
+        JPanel outletPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        outletPanel.setOpaque(false);
+        outletPanel.add(new JLabel("Outlet:"));
+        JLabel outletLabel = new JLabel(outlet);
+        outletLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
+        outletPanel.add(outletLabel);
+        panel.add(outletPanel);
+        panel.add(Box.createVerticalStrut(10));
+        
+        // Current stock
+        JPanel currentPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        currentPanel.setOpaque(false);
+        currentPanel.add(new JLabel("Current Stock:"));
+        JLabel currentLabel = new JLabel(String.valueOf(model.getStock(outlet)));
+        currentLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
+        currentLabel.setForeground(new Color(40, 199, 111));
+        currentPanel.add(currentLabel);
+        panel.add(currentPanel);
+        panel.add(Box.createVerticalStrut(15));
+        
+        // New stock input
+        JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        inputPanel.setOpaque(false);
+        inputPanel.add(new JLabel("New Stock:"));
+        JTextField stockField = new JTextField(10);
+        stockField.setText(String.valueOf(model.getStock(outlet)));
+        inputPanel.add(stockField);
+        panel.add(inputPanel);
+        panel.add(Box.createVerticalStrut(20));
+        
+        // Buttons
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        btnPanel.setOpaque(false);
+        
+        JButton saveBtn = new JButton("Save");
+        saveBtn.setBackground(new Color(40, 199, 111));
+        saveBtn.setForeground(Color.WHITE);
+        saveBtn.setFocusPainted(false);
+        saveBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
+        saveBtn.addActionListener(e -> {
+            try {
+                int newStock = Integer.parseInt(stockField.getText().trim());
+                if (newStock < 0) {
+                    JOptionPane.showMessageDialog(dialog, "Stock cannot be negative.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                
+                // Update in memory
+                model.setStock(outlet, newStock);
+                
+                // Update in database
+                DatabaseHandler.updateStock(model.getModelCode(), outlet, newStock);
+                
+                // Update CSV
+                CSVHandler.writeStock(com.goldenhour.dataload.DataLoad.allModels);
+                
+                JOptionPane.showMessageDialog(dialog, "Stock updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                refreshData();
+                dialog.dispose();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog, "Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
+        JButton cancelBtn = new JButton("Cancel");
+        cancelBtn.setForeground(Color.GRAY);
+        cancelBtn.setFocusPainted(false);
+        cancelBtn.addActionListener(e -> dialog.dispose());
+        
+        btnPanel.add(saveBtn);
+        btnPanel.add(cancelBtn);
+        panel.add(btnPanel);
+        
+        dialog.add(panel);
+        dialog.setVisible(true);
+    }
+
+    // --- DELETE STOCK CONFIRMATION ---
+    private void showDeleteConfirmation(Model model, String outlet) {
+        int option = JOptionPane.showConfirmDialog(
+            SwingUtilities.getWindowAncestor(this),
+            "Are you sure you want to delete stock for\n" + model.getModelCode() + " at " + outlet + "?",
+            "Confirm Delete",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE
+        );
+        
+        if (option == JOptionPane.YES_OPTION) {
+            model.setStock(outlet, 0);
+            DatabaseHandler.updateStock(model.getModelCode(), outlet, 0);
+            CSVHandler.writeStock(com.goldenhour.dataload.DataLoad.allModels);
+            JOptionPane.showMessageDialog(
+                SwingUtilities.getWindowAncestor(this),
+                "Stock deleted successfully.",
+                "Success",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+            refreshData();
         }
     }
 

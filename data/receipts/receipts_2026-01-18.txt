@@ -1,0 +1,10 @@
+=== Stock In ===
+Date: 2026-01-18
+Time: 14:10:23
+From: HQ (HeadQuarters)
+To: C65 (Kuala Lumpur East Mall)
+Models:
+- DW2400-1: 4
+Total Quantity: 4
+Employee in Charge: Test Manager
+--------------------------------------------------

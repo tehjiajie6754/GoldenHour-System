@@ -340,6 +340,7 @@ public class POSPanel extends BackgroundPanel {
         // Shared
         private JTextField nameField;
         private JLabel summaryTotal;
+        private JPanel summaryItemsPanel;
         
         // Method Buttons
         private JButton btnCard, btnCash, btnWallet;
@@ -432,13 +433,34 @@ public class POSPanel extends BackgroundPanel {
             summaryCard.setLayout(new BorderLayout());
             summaryCard.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-            JPanel sumContent = new JPanel(new GridLayout(4, 1, 0, 10));
+            JPanel sumContent = new JPanel(new BorderLayout(0, 15));
             sumContent.setOpaque(false);
-            sumContent.add(new JLabel("<html><b>Order Summary</b></html>"));
+            
+            // Header
+            JLabel summaryHeader = new JLabel("<html><b>Order Summary</b></html>");
+            sumContent.add(summaryHeader, BorderLayout.NORTH);
+            
+            // Items List Panel (Scrollable)
+            summaryItemsPanel = new JPanel();
+            summaryItemsPanel.setLayout(new BoxLayout(summaryItemsPanel, BoxLayout.Y_AXIS));
+            summaryItemsPanel.setOpaque(false);
+            
+            JScrollPane itemsScroll = new JScrollPane(summaryItemsPanel);
+            itemsScroll.setOpaque(false);
+            itemsScroll.getViewport().setOpaque(false);
+            itemsScroll.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 1));
+            itemsScroll.setPreferredSize(new Dimension(0, 150));
+            
+            sumContent.add(itemsScroll, BorderLayout.CENTER);
+            
+            // Total at bottom
             summaryTotal = new JLabel("Total: RM 0.00");
             summaryTotal.setFont(new Font("SansSerif", Font.BOLD, 18));
             summaryTotal.setForeground(new Color(105, 108, 255));
-            sumContent.add(summaryTotal);
+            summaryTotal.setHorizontalAlignment(SwingConstants.RIGHT);
+            sumContent.add(summaryTotal, BorderLayout.SOUTH);
+            
+            summaryCard.add(sumContent, BorderLayout.CENTER);
             
             JButton payBtn = new JButton("Confirm Payment");
             stylePrimaryBtn(payBtn);
@@ -448,8 +470,6 @@ public class POSPanel extends BackgroundPanel {
             backBtn.setBackground(Color.WHITE);
             backBtn.addActionListener(e -> goToStep(1));
 
-            summaryCard.add(sumContent, BorderLayout.CENTER);
-            
             JPanel btnP = new JPanel(new GridLayout(2, 1, 0, 10));
             btnP.setOpaque(false);
             btnP.add(payBtn); btnP.add(backBtn);
@@ -558,7 +578,45 @@ public class POSPanel extends BackgroundPanel {
         }
 
         public void updateSummary() {
+            // Update total
             summaryTotal.setText("Total: RM " + String.format("%.2f", grandTotal));
+            
+            // Update items list
+            summaryItemsPanel.removeAll();
+            for (Sales item : currentCart) {
+                JPanel itemRow = new JPanel(new BorderLayout());
+                itemRow.setOpaque(false);
+                itemRow.setBorder(new EmptyBorder(8, 5, 8, 5));
+                
+                // Left: Model Name
+                JLabel modelLabel = new JLabel(item.getModel());
+                modelLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+                modelLabel.setForeground(new Color(52, 71, 103));
+                
+                // Right: Quantity
+                JLabel qtyLabel = new JLabel("x " + item.getQuantity());
+                qtyLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
+                qtyLabel.setForeground(new Color(105, 108, 255));
+                qtyLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+                
+                itemRow.add(modelLabel, BorderLayout.WEST);
+                itemRow.add(qtyLabel, BorderLayout.EAST);
+                
+                summaryItemsPanel.add(itemRow);
+                
+                // Add separator
+                JSeparator sep = new JSeparator();
+                sep.setForeground(new Color(240, 240, 245));
+                summaryItemsPanel.add(Box.createVerticalStrut(3));
+                summaryItemsPanel.add(sep);
+                summaryItemsPanel.add(Box.createVerticalStrut(3));
+            }
+            
+            // Push items to the top by adding glue at the bottom
+            summaryItemsPanel.add(Box.createVerticalGlue());
+            
+            summaryItemsPanel.revalidate();
+            summaryItemsPanel.repaint();
         }
 
         private void processPayment() {
